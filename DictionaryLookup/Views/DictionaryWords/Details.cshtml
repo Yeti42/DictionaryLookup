@@ -1,0 +1,50 @@
+﻿@model DictionaryLookup.Models.DictionaryWord
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DictionaryWord</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Word)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Word)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Restricted)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Restricted)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.UnigramProbability)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.UnigramProbability)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Self)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Self)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.DictionaryWordID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
