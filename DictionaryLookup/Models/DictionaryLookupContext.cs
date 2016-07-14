@@ -18,7 +18,5 @@ namespace DictionaryLookup.Models
         public DictionaryLookupContext() : base("name=DictionaryLookupContext")
         {
         }
-
-        public System.Data.Entity.DbSet<DictionaryLookup.Models.DictionaryWord> DictionaryWords { get; set; }
     }
 }

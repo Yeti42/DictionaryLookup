@@ -20,9 +20,9 @@ namespace DictionaryLookup.Controllers
             return View();
         }
 
-        public ActionResult Contact()
+        public ActionResult Word()
         {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "Word details.";
 
             return View();
         }
