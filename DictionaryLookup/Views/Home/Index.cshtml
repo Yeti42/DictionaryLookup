@@ -21,7 +21,13 @@
             @Html.DisplayNameFor(model => model.Restricted)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Self)
+            @Html.DisplayNameFor(model => model.TextPredictionCost)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TextPredictionBackOffCost)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TextPredictionBadWord)
         </th>
         <th></th>
     </tr>
@@ -38,7 +44,13 @@
             @Html.DisplayFor(modelItem => item.Restricted)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Self)
+            @Html.DisplayFor(modelItem => item.TextPredictionCost)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.TextPredictionBackOffCost)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.TextPredictionBadWord)
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.DictionaryWordID }) |

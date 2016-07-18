@@ -13,7 +13,7 @@ namespace DictionaryLookup.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201607152302578_Initial"; }
+            get { return "201607180540356_Initial"; }
         }
         
         string IMigrationMetadata.Source

@@ -8,59 +8,68 @@ namespace DictionaryLookup.Models
 {
     public class DictionaryWord
     {
+        public DictionaryWord() { }
+        public DictionaryWord(string word, int Tag0)
+        {
+            Word = word;
+            Restricted = Convert.ToString((Tag0 >> 4) & 0xF, 2).PadLeft(4, '0');
+            Dialect = Convert.ToString(Tag0 & 0xF, 2).PadLeft(4, '0');
+            SpellerFrequency = Convert.ToString((Tag0 >> 6) & 0xF, 2).PadLeft(2, '0');
+        }
+        public DictionaryWord(string line)
+        {
+            string[] words = line.Split('\t');
+
+            Restricted = "0000";
+            Dialect = "1111";
+            SpellerFrequency = "00";
+
+            foreach (string word in words)
+            {
+                if(word == words.First())
+                {
+                    Word = word;
+                }
+                else
+                {
+                    string[] tag = word.Split('=');
+                    tag[0] = tag[0].Replace("|", " ");
+                    //Word = Word + tag[0] + tag[1];
+                    Int32 tagID = Convert.ToInt32(tag[0]);
+                    Int32 tagValue = Int32.Parse(tag[1].Remove(0,tag[1].IndexOf('x')+1), System.Globalization.NumberStyles.HexNumber);
+                    if (tagID == 0)
+                    {
+                        // Dictionary Tag
+                        Restricted = Convert.ToString((tagValue >> 4) & 0xF, 2).PadLeft(4, '0');
+                        Dialect = Convert.ToString(tagValue & 0xF, 2).PadLeft(4, '0');
+                        SpellerFrequency = Convert.ToString((tagValue >> 6) & 0xF, 2).PadLeft(2, '0');
+                    }
+                    else if (tagID == 1)
+                    {
+                        // Text Prediction Tag
+                        TextPredictionBadWord = Convert.ToString((tagValue >> 24) & 0x1);
+                        TextPredictionCost = Convert.ToString((tagValue >> 16) & 0xF);
+                        TextPredictionBackOffCost = Convert.ToString((tagValue >> 8) & 0xF);
+                    }
+                }
+            }
+        }
         public int DictionaryWordID { get; set; }
         public string Word { get; set; }
-        public Int16 Tag0 { get; set; }
-        public Int16 Tag1 { get; set; }
-        public Int16 Tag2 { get; set; }
-        public Int16 Tag3 { get; set; }
-        public Int16 Tag4 { get; set; }
-        public Int16 Tag5 { get; set; }
-        public Int16 Tag6 { get; set; }
-        public Int16 Tag7 { get; set; }
-        public bool HasTag0 { get; set; }
-        public bool HasTag1 { get; set; }
-        public bool HasTag2 { get; set; }
-        public bool HasTag3 { get; set; }
-        public bool HasTag4 { get; set; }
-        public bool HasTag5 { get; set; }
-        public bool HasTag6 { get; set; }
-        public bool HasTag7 { get; set; }
 
-        public string Restricted
-        {
-            get
-            {
-                return Convert.ToString((Tag0 >> 4) & 0xF, 2).PadLeft(4, '0');
-            }
-            set
-            {
-                return;
-            }
-        }
-        public string Dialect
-        {
-            get
-            {
-                return Convert.ToString(Tag0 & 0xF, 2).PadLeft(4, '0');
-            }
-            set
-            {
-                return;
-            }
-        }
+        // Tag 0
+        public string Restricted { get; set; }
+        public string Dialect { get; set; }
+        public string SpellerFrequency { get; set; }
 
-        public string SpellerFrequency
-        {
-            get
-            {
-                return Convert.ToString((Tag0 >> 6) & 0x3, 2).PadLeft(2, '0');
-            }
-            set
-            {
-                return;
-            }
-        }
+        // Tag 1
+        public string TextPredictionBadWord { get; set; }
+        public string TextPredictionCost { get; set; }
+        public string TextPredictionBackOffCost { get; set; }
+
+        // Tag 5
+        public string HandwritingCalligScore { get; set; }
+        public string HandwritingWordCost { get; set; }
 
         public string Self
         {
