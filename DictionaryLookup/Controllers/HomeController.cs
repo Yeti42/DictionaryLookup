@@ -14,10 +14,15 @@ namespace DictionaryLookup.Controllers
     {
         private DictionaryLookupContext db = new DictionaryLookupContext();
 
-        // GET: Home
-        public ActionResult Index()
+        // GET: Home0
+        public ActionResult Index(string filter)
         {
-            return View(db.DictionaryWords.ToList());
+            if (filter != null)
+            {
+                string sqlcmd = "SELECT top 4000 * FROM DictionaryWords WHERE Word LIKE @p0 + '%'";
+                return View(db.DictionaryWords.SqlQuery(sqlcmd, filter).ToList());
+            }
+            return View(db.DictionaryWords.SqlQuery("SELECT top 4000 * FROM DictionaryWords").ToList());
         }
 
         // GET: Home/Details/5

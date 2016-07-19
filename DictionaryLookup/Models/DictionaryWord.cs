@@ -48,8 +48,8 @@ namespace DictionaryLookup.Models
                     {
                         // Text Prediction Tag
                         TextPredictionBadWord = Convert.ToString((tagValue >> 24) & 0x1);
-                        TextPredictionCost = Convert.ToString((tagValue >> 16) & 0xF);
-                        TextPredictionBackOffCost = Convert.ToString((tagValue >> 8) & 0xF);
+                        TextPredictionCost = Convert.ToString((tagValue >> 16) & 0xFF);
+                        TextPredictionBackOffCost = Convert.ToString((tagValue >> 8) & 0xFF);
                     }
                 }
             }
