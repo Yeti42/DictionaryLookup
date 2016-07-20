@@ -42,50 +42,65 @@ namespace DictionaryLookup.Migrations
                         continueCosts.Remove(continueCosts.Last());
                     }
 
+                    string tagString = "";
+                    if (line.Contains("\t#"))
+                    {
+                        tagString = line.Substring(line.IndexOf("#") + 1);
+                    }
+                    else if (line.Contains("\t|"))
+                    {
+                        tagString = line.Substring(line.IndexOf("|") + 1);
+                    }
+
                     if (!line.Contains("\t#"))
                     {
-                        // Valid word. Process and write to the console.
-                        if (continueStrings.Count > 0)
-                        {
-                            if (line.Contains("\t1=0x") || line.Contains("|1=0x"))
-                            {
-                                // Extract the stop cost and add to the current continue cost
-                                string tag1ValueString = line.Substring(line.IndexOf("1=0x"), 12);
-                                Int32 stopCost = continueCosts.Last() + Int32.Parse(tag1ValueString.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
-                                // Rewrite the total back to the stop cost
-                                line = line.Replace(tag1ValueString,
-                                    tag1ValueString.Substring(0, 6)
-                                    + Convert.ToString(stopCost, 16).PadLeft(2, '0')
-                                    + tag1ValueString.Substring(8, 4));
-                            }
-                            else
-                            {
-                                if (!line.Contains("\t"))
-                                {
-                                    line = line + "\t|1=0x00" + Convert.ToString(continueCosts.Last(), 16).PadLeft(2, '0') + "0000";
-                                }
-                                else
-                                {
-                                    line = line + "\t1=0x00" + Convert.ToString(continueCosts.Last(), 16).PadLeft(2, '0') + "0000";
+                        // Extract the word
+                        string word = line.Contains("\t") ? line.Remove(line.IndexOf('\t')) : line;
 
-                                }
-                            }
-                        }
+                        // Parse Tag0 for this word
                         // Dialect filter
-                        // US English only for now
-                        if (line.Contains("\t0=0x") | line.Contains("\t|0=0x"))
+                        // US English only for now (i.e. bit 1)
+                        bool spellerRestricted = false;
+                        Int16 spellerFrequency = 0;
+                        if (tagString.Contains("0=0x"))
                         {
-                            string tags = line.Substring(line.IndexOf("|") + 1);
-                            Int32 dialectTag = Int32.Parse(tags.Substring(tags.IndexOf("0=0x") + 10, 2), System.Globalization.NumberStyles.HexNumber);
-                            if ((dialectTag & 1) != 1)
+                            Int32 dialectTag = Int32.Parse(tagString.Substring(tagString.IndexOf("0=0x") + 11, 1), System.Globalization.NumberStyles.HexNumber);
+                            if ((dialectTag & 1) == 0)
                             {
                                 // Has a dialect tag and it does not have bit 1 set.
                                 continue;
                             }
+                            spellerRestricted = ((Int32.Parse(tagString.Substring(tagString.IndexOf("0=0x") + 10, 1), System.Globalization.NumberStyles.HexNumber) & 1) > 0);
+                            spellerFrequency = (Int16)(Int32.Parse(tagString.Substring(tagString.IndexOf("0=0x") + 9, 1), System.Globalization.NumberStyles.HexNumber) & 3);
                         }
 
-                        wordsToAdd.Add(new DictionaryWord(line));
-                        if (count++ > 400000)
+                        // Parse Tag1 for this line
+                        Int16 stopCost = (Int16)((continueStrings.Count > 0)? continueCosts.Last():0);
+                        Int16 backoffCost = 0;
+                        bool badWord = false;
+                        if (tagString.Contains("1=0x"))
+                        {
+                            // Extract the stop cost and add to the current continue cost
+                            string tag1ValueString = tagString.Substring(tagString.IndexOf("1=0x")+4, 8);
+                            stopCost += Int16.Parse(tag1ValueString.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+                            // Extract the backoff cost
+                            backoffCost = Int16.Parse(tag1ValueString.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+                            // Extract the badword bit
+                            badWord = ((Int32.Parse(tag1ValueString.Substring(1, 1), System.Globalization.NumberStyles.HexNumber) & 1) == 1);
+                        }
+
+                        // Parse Tag5
+                        Int16 hwrCost = 0;
+                        Int16 hwrCallig = 0;
+                        if (tagString.Contains("5=0x"))
+                        {
+                            string tag5ValueString = tagString.Substring(tagString.IndexOf("5=0x")+4, 8);
+                            hwrCost = Int16.Parse(tag5ValueString.Substring(4, 4), System.Globalization.NumberStyles.HexNumber);
+                            hwrCallig = (Int16)(Int32.Parse(tag5ValueString.Substring(5, 1), System.Globalization.NumberStyles.HexNumber) & 3);
+                        }
+
+                        wordsToAdd.Add(new DictionaryWord(word, spellerRestricted, spellerFrequency, stopCost, backoffCost, badWord, hwrCost, hwrCallig));
+                        if (count++ > 4000)
                         {
                             break;
                         }

@@ -4,26 +4,65 @@
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
-
 <div>
-    <h4>DictionaryWord</h4>
+    <h2>@Html.DisplayFor(model => model.Word)</h2>
     <hr />
     <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Word)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Word)
-        </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.Restricted)
+            Restricted
         </dt>
 
         <dd>
             @Html.DisplayFor(model => model.Restricted)
+        </dd>
+
+        <dt>
+            Bad Word
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TextPredictionBadWord)
+        </dd>
+
+        <dt>
+            Speller Frequency
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SpellerFrequency)
+        </dd>
+
+        <dt>
+            Text Prediction Cost
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TextPredictionCost)
+        </dd>
+
+        <dt>
+            Backoff Cost
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TextPredictionBackOffCost)
+        </dd>
+
+        <dt>
+            HWR Cost
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.HWRWordCost)
+        </dd>
+
+        <dt>
+            HWR Callig
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.HWRCalligScore)
         </dd>
 
     </dl>

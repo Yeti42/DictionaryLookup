@@ -15,14 +15,35 @@ namespace DictionaryLookup.Controllers
         private DictionaryLookupContext db = new DictionaryLookupContext();
 
         // GET: Home0
-        public ActionResult Index(string filter)
+        public ActionResult Index(string word, string prefix)
         {
-            if (filter != null)
+            if ((word != null) && (word.Length > 0))
             {
-                string sqlcmd = "SELECT top 4000 * FROM DictionaryWords WHERE Word LIKE @p0 + '%'";
-                return View(db.DictionaryWords.SqlQuery(sqlcmd, filter).ToList());
+                if ((prefix != null) && (prefix.Length > 0))
+                {
+                    string sqlcmd = "SELECT top 40 * FROM DictionaryWords" +
+                                    " WHERE Word LIKE @p0 + ' ' + @p1" +
+                                    " OR Word LIKE '% ' + @p0 + ' ' + @p1" +
+                                    " ORDER BY TextPredictionCost, Word";
+                    return View(db.DictionaryWords.SqlQuery(sqlcmd, prefix, word).ToList());
+                }
+                else
+                {
+                    string sqlcmd = "SELECT top 40 * FROM DictionaryWords" +
+                                    " WHERE Word LIKE @p0" +
+                                    " OR Word LIKE '% ' + @p0" +
+                                    " ORDER BY TextPredictionCost, Word";
+                    return View(db.DictionaryWords.SqlQuery(sqlcmd, word).ToList());
+                }
             }
-            return View(db.DictionaryWords.SqlQuery("SELECT top 4000 * FROM DictionaryWords").ToList());
+            else if ((prefix != null) && (prefix.Length > 0))
+            {
+                string sqlcmd = "SELECT top 40 * FROM DictionaryWords" +
+                                " WHERE Word LIKE @p0 + ' %'" +
+                                " ORDER BY TextPredictionCost, Word";
+                return View(db.DictionaryWords.SqlQuery(sqlcmd, prefix).ToList());
+            }
+            return View(db.DictionaryWords.SqlQuery("SELECT top 40 * FROM DictionaryWords ORDER BY TextPredictionCost, Word").ToList());
         }
 
         // GET: Home/Details/5

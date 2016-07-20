@@ -6,16 +6,20 @@
 
 <h2>Index</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
+@using (Html.BeginForm())
+{
+    <p>
+        Word: @Html.TextBox("word") <br />
+        Prefix: @Html.TextBox("prefix") <br />
+        <input type="submit" value="Search" />
+    </p> 
+}
+
+
 <table class="table">
     <tr>
         <th>
             @Html.DisplayNameFor(model => model.Word)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Dialect)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Restricted)
@@ -32,32 +36,30 @@
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Word)
-        </td>
-        <th>
-            @Html.DisplayFor(modelItem => item.Dialect)
-        </th>
-        <td>
-            @Html.DisplayFor(modelItem => item.Restricted)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TextPredictionCost)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TextPredictionBackOffCost)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TextPredictionBadWord)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.DictionaryWordID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.DictionaryWordID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.DictionaryWordID })
-        </td>
-    </tr>
-}
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Word)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Restricted)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TextPredictionCost)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TextPredictionBackOffCost)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TextPredictionBadWord)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.DictionaryWordID }) |
+                @Html.ActionLink("Details", "Details", new { id = item.DictionaryWordID }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.DictionaryWordID })
+            </td>
+        </tr>
+    }
 
 </table>
