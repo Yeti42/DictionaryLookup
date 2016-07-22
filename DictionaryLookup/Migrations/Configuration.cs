@@ -19,27 +19,38 @@ namespace DictionaryLookup.Migrations
         protected override void Seed(DictionaryLookup.Models.DictionaryLookupContext context)
         {
             // Deletes all data, from all tables, except for __MigrationHistory
-            context.Database.ExecuteSqlCommand("sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'");
-            context.Database.ExecuteSqlCommand("sp_MSForEachTable 'IF OBJECT_ID(''?'') NOT IN (ISNULL(OBJECT_ID(''[dbo].[__MigrationHistory]''),0)) DELETE FROM ?'");
-            context.Database.ExecuteSqlCommand("EXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'");
-            
-            List<DictionaryWord> wordsToAdd = new List<DictionaryWord>();
+            //context.Database.ExecuteSqlCommand("sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'");
+            //context.Database.ExecuteSqlCommand("sp_MSForEachTable 'IF OBJECT_ID(''?'') NOT IN (ISNULL(OBJECT_ID(''[dbo].[__MigrationHistory]''),0)) DELETE FROM ?'");
+            //context.Database.ExecuteSqlCommand("EXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'");
 
-            int count = 0;
-            using (FileStream fs = File.OpenRead(@"S:\RS\dev\base\win32\winnls\ELS\AdvancedServices\Spelling\nlg7\spellers\dictionaries\english_united_states\dump.txt"))
+            context.Database.ExecuteSqlCommand("DELETE FROM DictionaryWords");
+
+            //List<DictionaryWord> wordsToAdd = new List<DictionaryWord>();
+            DictionaryWord[] wordsArray = new DictionaryWord[100000];
+
+            int wordcount = 0;
+            
+            using (FileStream fs = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + @"\english_united_states.testtrie.txt"))
             using (TextReader tr = new StreamReader(fs))
             {
                 List<string> continueStrings = new List<string>();
                 List<Int32> continueCosts = new List<int>();
+                List<Int32> continueNGram = new List<int>();
                 while (tr.Peek() > -1)
                 {
                     string line = tr.ReadLine();
+
+                    // Extract the word
+                    string word = line.Contains("\t") ? line.Remove(line.IndexOf('\t')) : line;
+                    int NGram = 1;
+                    foreach (char c in word) if (c == ' ') NGram++;
 
                     // Unwrap the continue costs back so that the last one matches the current label
                     while ((continueStrings.Count > 0) && (!line.StartsWith(continueStrings.Last())))
                     {
                         continueStrings.Remove(continueStrings.Last());
                         continueCosts.Remove(continueCosts.Last());
+                        continueNGram.Remove(continueNGram.Last());
                     }
 
                     string tagString = "";
@@ -54,9 +65,6 @@ namespace DictionaryLookup.Migrations
 
                     if (!line.Contains("\t#"))
                     {
-                        // Extract the word
-                        string word = line.Contains("\t") ? line.Remove(line.IndexOf('\t')) : line;
-
                         // Parse Tag0 for this word
                         // Dialect filter
                         // US English only for now (i.e. bit 1)
@@ -75,7 +83,13 @@ namespace DictionaryLookup.Migrations
                         }
 
                         // Parse Tag1 for this line
-                        Int16 stopCost = (Int16)((continueStrings.Count > 0)? continueCosts.Last():0);
+                        Int16 stopCost = (Int16)(0);
+                        // Continue cost resets at the space so only add the continue cost if the length of the continue string is at or beyond the
+                        // the last space in the ngram we're adding
+                        if ((continueStrings.Count > 0) && (continueNGram.Last() == NGram))
+                        {
+                            stopCost = (Int16)(continueCosts.Last());
+                        }
                         Int16 backoffCost = 0;
                         bool badWord = false;
                         if (tagString.Contains("1=0x"))
@@ -99,26 +113,30 @@ namespace DictionaryLookup.Migrations
                             hwrCallig = (Int16)(Int32.Parse(tag5ValueString.Substring(5, 1), System.Globalization.NumberStyles.HexNumber) & 3);
                         }
 
-                        wordsToAdd.Add(new DictionaryWord(word, spellerRestricted, spellerFrequency, stopCost, backoffCost, badWord, hwrCost, hwrCallig));
-                        if (count++ > 4000)
+                        wordsArray[wordcount] = new DictionaryWord(word, spellerRestricted, spellerFrequency, stopCost, backoffCost, badWord, hwrCost, hwrCallig);
+                        if (++wordcount == wordsArray.Length)
                         {
-                            break;
+                            context.DictionaryWords.AddRange(wordsArray);
+                            return;
                         }
-
                     }
 
                     // Update the continue node state
                     if (line.Contains("\t1=") || line.Contains("|1=") | line.Contains("#1="))
                     {
                         Int32 continueCost = Int32.Parse(line.Substring(line.IndexOf("1=0x") + 10, 2), System.Globalization.NumberStyles.HexNumber);
-                        if (continueCosts.Count > 0)
+                        if ((continueStrings.Count > 0) && (continueNGram.Last() == NGram))
+                        {
                             continueCost += continueCosts.Last();
-                        continueStrings.Add(line.Substring(0, line.IndexOf('\t')));
+                        }
+                        continueStrings.Add(word);
                         continueCosts.Add(continueCost);
+                        continueNGram.Add(NGram);
                     }
                 }
             }
-            context.DictionaryWords.AddRange(wordsToAdd);
+            context.DictionaryWords.AddRange(wordsArray);
+
         }
     }
 }

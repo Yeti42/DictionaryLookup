@@ -17,14 +17,39 @@ namespace DictionaryLookup.Controllers
         // GET: Home0
         public ActionResult Index(string word, string prefix)
         {
-            if ((word != null) && (word.Length > 0))
+
+            /*
+            List<DictionaryWord> words = new List<DictionaryWord>();
+            DictionaryWord b1 = new DictionaryWord("barf", true, 0, 0, 0, true, 0, 0);
+            DictionaryWord b2 = new DictionaryWord(db.Database.Connection.Database.ToString(), true, 0, 0, 0, true, 0, 0);
+            if (db.Database.Connection.State == ConnectionState.Closed)
             {
-                if ((prefix != null) && (prefix.Length > 0))
+                try
+                {
+                    db.Database.Connection.Open();
+                }
+                catch (Exception e)
+                {
+                    b2 = new DictionaryWord(e.ToString(), true, 0, 0, 0, true, 0, 0);
+                }
+            }
+            DictionaryWord b3 = new DictionaryWord(db.Database.Connection.ConnectionString.ToString(), true, 0, 0, 0, true, 0, 0);
+            DictionaryWord b4 = new DictionaryWord(db.Database.Connection.State.ToString(), true, 0, 0, 0, true, 0, 0);
+            words.Add(b1);
+            words.Add(b2);
+            words.Add(b3);
+            words.Add(b4);
+            */
+
+
+            if (!String.IsNullOrEmpty(word))
+            {
+                if (!string.IsNullOrEmpty(prefix))
                 {
                     string sqlcmd = "SELECT top 40 * FROM DictionaryWords" +
                                     " WHERE Word LIKE @p0 + ' ' + @p1" +
                                     " OR Word LIKE '% ' + @p0 + ' ' + @p1" +
-                                    " ORDER BY TextPredictionCost, Word";
+                                    " ORDER BY NGram, TextPredictionCost, Word";
                     return View(db.DictionaryWords.SqlQuery(sqlcmd, prefix, word).ToList());
                 }
                 else
@@ -32,18 +57,21 @@ namespace DictionaryLookup.Controllers
                     string sqlcmd = "SELECT top 40 * FROM DictionaryWords" +
                                     " WHERE Word LIKE @p0" +
                                     " OR Word LIKE '% ' + @p0" +
-                                    " ORDER BY TextPredictionCost, Word";
+                                    " ORDER BY NGram, TextPredictionCost, Word";
                     return View(db.DictionaryWords.SqlQuery(sqlcmd, word).ToList());
                 }
             }
-            else if ((prefix != null) && (prefix.Length > 0))
+            else if (!string.IsNullOrEmpty(prefix))
             {
                 string sqlcmd = "SELECT top 40 * FROM DictionaryWords" +
                                 " WHERE Word LIKE @p0 + ' %'" +
-                                " ORDER BY TextPredictionCost, Word";
+                                " ORDER BY NGram, TextPredictionCost, Word";
                 return View(db.DictionaryWords.SqlQuery(sqlcmd, prefix).ToList());
             }
-            return View(db.DictionaryWords.SqlQuery("SELECT top 40 * FROM DictionaryWords ORDER BY TextPredictionCost, Word").ToList());
+            return View(db.DictionaryWords.SqlQuery("SELECT top 40 * FROM DictionaryWords ORDER BY NGram, TextPredictionCost, Word").ToList());
+
+            //return View(words);
+
         }
 
         // GET: Home/Details/5
