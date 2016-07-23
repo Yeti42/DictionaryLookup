@@ -18,17 +18,14 @@ namespace DictionaryLookup.Migrations
 
         protected override void Seed(DictionaryLookup.Models.DictionaryLookupContext context)
         {
-            // Deletes all data, from all tables, except for __MigrationHistory
-            //context.Database.ExecuteSqlCommand("sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'");
-            //context.Database.ExecuteSqlCommand("sp_MSForEachTable 'IF OBJECT_ID(''?'') NOT IN (ISNULL(OBJECT_ID(''[dbo].[__MigrationHistory]''),0)) DELETE FROM ?'");
-            //context.Database.ExecuteSqlCommand("EXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'");
-
-            context.Database.ExecuteSqlCommand("DELETE FROM DictionaryWords");
+            // Empties the Dictionary Words table
+            //context.Database.ExecuteSqlCommand("DELETE FROM DictionaryWords");
+            //context.SaveChanges();
 
             //List<DictionaryWord> wordsToAdd = new List<DictionaryWord>();
-            DictionaryWord[] wordsArray = new DictionaryWord[100000];
+            DictionaryWord[] wordsArray = new DictionaryWord[1000];
 
-            int wordcount = 0;
+            Int64 wordcount = 0;
             
             using (FileStream fs = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + @"\english_united_states.testtrie.txt"))
             using (TextReader tr = new StreamReader(fs))
@@ -48,9 +45,9 @@ namespace DictionaryLookup.Migrations
                     // Unwrap the continue costs back so that the last one matches the current label
                     while ((continueStrings.Count > 0) && (!line.StartsWith(continueStrings.Last())))
                     {
-                        continueStrings.Remove(continueStrings.Last());
-                        continueCosts.Remove(continueCosts.Last());
-                        continueNGram.Remove(continueNGram.Last());
+                        continueStrings.RemoveRange(continueStrings.Count - 1, 1);
+                        continueCosts.RemoveRange(continueCosts.Count - 1, 1);
+                        continueNGram.RemoveRange(continueNGram.Count - 1, 1);
                     }
 
                     string tagString = "";
@@ -113,11 +110,13 @@ namespace DictionaryLookup.Migrations
                             hwrCallig = (Int16)(Int32.Parse(tag5ValueString.Substring(5, 1), System.Globalization.NumberStyles.HexNumber) & 3);
                         }
 
-                        wordsArray[wordcount] = new DictionaryWord(word, spellerRestricted, spellerFrequency, stopCost, backoffCost, badWord, hwrCost, hwrCallig);
-                        if (++wordcount == wordsArray.Length)
+                        wordsArray[wordcount % wordsArray.Length] = new DictionaryWord(word, spellerRestricted, spellerFrequency, stopCost, backoffCost, badWord, hwrCost, hwrCallig);
+                        wordsArray[wordcount % wordsArray.Length].DictionaryWordID = wordcount;
+                        if (++wordcount % wordsArray.Length == 0)
                         {
                             context.DictionaryWords.AddRange(wordsArray);
-                            return;
+                            context.SaveChanges();
+                            //if (wordcount >= 10 * wordsArray.Length) return;
                         }
                     }
 
@@ -135,8 +134,11 @@ namespace DictionaryLookup.Migrations
                     }
                 }
             }
-            context.DictionaryWords.AddRange(wordsArray);
-
+            for(int i=0; i < wordcount % wordsArray.Length; i++)
+            {
+                context.DictionaryWords.Add(wordsArray[i]);
+            }
+            context.SaveChanges();
         }
     }
 }
