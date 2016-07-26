@@ -16,19 +16,24 @@ namespace DictionaryLookup.Models
             TextPredictionCost = 0;
             TextPredictionBackOffCost = 0;
             TextPredictionBadWord = false;
-            HWRCalligScore = 0;
-            HWRWordCost = 0;
+            HWRCost = 4091;
+            HWRCalligraphyCost = 0;
         }
-        public DictionaryWord(string word, bool restricted, Int16 frequency, Int16 stopCost, Int16 backoffCost, bool badWord, Int16 hwrCallig, Int16 hwrCost)
+        public DictionaryWord(string word, bool restricted, Int16 frequency, Int16 stopCost, Int16 backoffCost, bool badWord, Int16 hwrCost, Int16 hwrCallig)
+        {
+            Set(word, restricted, frequency, stopCost, backoffCost, badWord, hwrCost, hwrCallig);
+        }
+
+        public void Set(string word, bool restricted, Int16 frequency, Int16 stopCost, Int16 backoffCost, bool badWord, Int16 hwrCost, Int16 hwrCallig)
         {
             Word = word;
             Restricted = restricted;
             SpellerFrequency = frequency;
-            TextPredictionCost = stopCost;
-            TextPredictionBackOffCost = backoffCost;
+            TextPredictionCost = (Byte)stopCost;
+            TextPredictionBackOffCost = (Byte)backoffCost;
             TextPredictionBadWord = badWord;
-            HWRCalligScore = hwrCallig;
-            HWRWordCost = hwrCost;
+            HWRCost = hwrCost;
+            HWRCalligraphyCost = hwrCallig;
             NGram = 1;
             foreach (char c in word) if (c == ' ') NGram++;
         }
@@ -38,29 +43,19 @@ namespace DictionaryLookup.Models
 
         // Tag 0
         public bool Restricted { get; set; }
-        //public string Dialect { get; set; }
         public Int16 SpellerFrequency { get; set; }
 
         // Tag 1
         public bool TextPredictionBadWord { get; set; }
-        public Int16 TextPredictionCost { get; set; }
-        public Int16 TextPredictionBackOffCost { get; set; }
+        public Byte TextPredictionCost { get; set; }
+        public Byte TextPredictionBackOffCost { get; set; }
 
         // Tag 5
-        public Int16 HWRCalligScore { get; set; }
-        public Int16 HWRWordCost { get; set; }
+        public Int16 HWRCost { get; set; }
+        public Int16 HWRCalligraphyCost { get; set; }
 
         //Meta-data
         public Int16 NGram { get; set; }
-
-        public string Self
-        {
-            get
-            {
-                return string.Format(CultureInfo.CurrentCulture,
-                "api/words/{0}", this.DictionaryWordID);
-            }
-            set { }
-        }
+        
     }
 }

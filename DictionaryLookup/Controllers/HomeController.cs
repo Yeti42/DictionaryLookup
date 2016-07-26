@@ -17,31 +17,6 @@ namespace DictionaryLookup.Controllers
         // GET: Home0
         public ActionResult Index(string word, string prefix)
         {
-
-            /*
-            List<DictionaryWord> words = new List<DictionaryWord>();
-            DictionaryWord b1 = new DictionaryWord("barf", true, 0, 0, 0, true, 0, 0);
-            DictionaryWord b2 = new DictionaryWord(db.Database.Connection.Database.ToString(), true, 0, 0, 0, true, 0, 0);
-            if (db.Database.Connection.State == ConnectionState.Closed)
-            {
-                try
-                {
-                    db.Database.Connection.Open();
-                }
-                catch (Exception e)
-                {
-                    b2 = new DictionaryWord(e.ToString(), true, 0, 0, 0, true, 0, 0);
-                }
-            }
-            DictionaryWord b3 = new DictionaryWord(db.Database.Connection.ConnectionString.ToString(), true, 0, 0, 0, true, 0, 0);
-            DictionaryWord b4 = new DictionaryWord(db.Database.Connection.State.ToString(), true, 0, 0, 0, true, 0, 0);
-            words.Add(b1);
-            words.Add(b2);
-            words.Add(b3);
-            words.Add(b4);
-            */
-
-
             if (!String.IsNullOrEmpty(word))
             {
                 if (!string.IsNullOrEmpty(prefix))
@@ -143,8 +118,8 @@ namespace DictionaryLookup.Controllers
             return View(dictionaryWord);
         }
 
-        // GET: Home/Delete/5
-        public ActionResult Delete(int? id)
+        // Bad Word selected for specific word
+        public ActionResult OffensiveWord(int? id)
         {
             if (id == null)
             {
@@ -155,7 +130,23 @@ namespace DictionaryLookup.Controllers
             {
                 return HttpNotFound();
             }
-            return View(dictionaryWord);
+            return RedirectToAction("Index");
+            //return View(dictionaryWord);
+        }
+
+        // Misspelling selected for specific word
+        public ActionResult Misspelling(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            DictionaryWord dictionaryWord = db.DictionaryWords.Find(id);
+            if (dictionaryWord == null)
+            {
+                return HttpNotFound();
+            }
+            return RedirectToAction("Index");
         }
 
         // POST: Home/Delete/5

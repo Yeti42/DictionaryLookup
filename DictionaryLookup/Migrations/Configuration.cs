@@ -21,12 +21,12 @@ namespace DictionaryLookup.Migrations
             // Empties the Dictionary Words table
             //context.Database.ExecuteSqlCommand("DELETE FROM DictionaryWords");
             //context.SaveChanges();
-
+            
             //List<DictionaryWord> wordsToAdd = new List<DictionaryWord>();
             DictionaryWord[] wordsArray = new DictionaryWord[1000];
 
             Int64 wordcount = 0;
-            
+
             using (FileStream fs = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + @"\english_united_states.testtrie.txt"))
             using (TextReader tr = new StreamReader(fs))
             {
@@ -42,6 +42,16 @@ namespace DictionaryLookup.Migrations
                     int NGram = 1;
                     foreach (char c in word) if (c == ' ') NGram++;
 
+                    string tagString = "";
+                    if (line.Contains("\t#"))
+                    {
+                        tagString = line.Substring(line.IndexOf("\t#") + 2);
+                    }
+                    else if (line.Contains("\t|"))
+                    {
+                        tagString = line.Substring(line.IndexOf("\t|") + 2);
+                    }
+
                     // Unwrap the continue costs back so that the last one matches the current label
                     while ((continueStrings.Count > 0) && (!line.StartsWith(continueStrings.Last())))
                     {
@@ -50,16 +60,18 @@ namespace DictionaryLookup.Migrations
                         continueNGram.RemoveRange(continueNGram.Count - 1, 1);
                     }
 
-                    string tagString = "";
-                    if (line.Contains("\t#"))
+                    // Update the continue node state
+                    if (tagString.Contains("1="))
                     {
-                        tagString = line.Substring(line.IndexOf("#") + 1);
+                        Int32 continueCost = Int32.Parse(tagString.Substring(tagString.IndexOf("1=0x") + 10, 2), System.Globalization.NumberStyles.HexNumber);
+                        if ((continueStrings.Count > 0) && (continueNGram.Last() == NGram))
+                        {
+                            continueCost += continueCosts.Last();
+                        }
+                        continueStrings.Add(word);
+                        continueCosts.Add(continueCost);
+                        continueNGram.Add(NGram);
                     }
-                    else if (line.Contains("\t|"))
-                    {
-                        tagString = line.Substring(line.IndexOf("|") + 1);
-                    }
-
                     if (!line.Contains("\t#"))
                     {
                         // Parse Tag0 for this word
@@ -101,7 +113,7 @@ namespace DictionaryLookup.Migrations
                         }
 
                         // Parse Tag5
-                        Int16 hwrCost = 0;
+                        Int16 hwrCost = 4091; // Default HWR cost for a valid word
                         Int16 hwrCallig = 0;
                         if (tagString.Contains("5=0x"))
                         {
@@ -110,27 +122,18 @@ namespace DictionaryLookup.Migrations
                             hwrCallig = (Int16)(Int32.Parse(tag5ValueString.Substring(5, 1), System.Globalization.NumberStyles.HexNumber) & 3);
                         }
 
-                        wordsArray[wordcount % wordsArray.Length] = new DictionaryWord(word, spellerRestricted, spellerFrequency, stopCost, backoffCost, badWord, hwrCost, hwrCallig);
+                        //if (wordsArray[wordcount % wordsArray.Length] == null)
+                        {
+                            wordsArray[wordcount % wordsArray.Length] = new DictionaryWord();
+                        }
                         wordsArray[wordcount % wordsArray.Length].DictionaryWordID = wordcount;
+                        wordsArray[wordcount % wordsArray.Length].Set(word, spellerRestricted, spellerFrequency, stopCost, backoffCost, badWord, hwrCost, hwrCallig);
+
                         if (++wordcount % wordsArray.Length == 0)
                         {
                             context.DictionaryWords.AddRange(wordsArray);
                             context.SaveChanges();
-                            //if (wordcount >= 10 * wordsArray.Length) return;
                         }
-                    }
-
-                    // Update the continue node state
-                    if (line.Contains("\t1=") || line.Contains("|1=") | line.Contains("#1="))
-                    {
-                        Int32 continueCost = Int32.Parse(line.Substring(line.IndexOf("1=0x") + 10, 2), System.Globalization.NumberStyles.HexNumber);
-                        if ((continueStrings.Count > 0) && (continueNGram.Last() == NGram))
-                        {
-                            continueCost += continueCosts.Last();
-                        }
-                        continueStrings.Add(word);
-                        continueCosts.Add(continueCost);
-                        continueNGram.Add(NGram);
                     }
                 }
             }

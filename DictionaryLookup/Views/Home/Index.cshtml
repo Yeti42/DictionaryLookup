@@ -22,28 +22,24 @@
             @Html.DisplayNameFor(model => model.Word)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Restricted)
+            TP cost
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.TextPredictionCost)
+            BO cost
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.TextPredictionBackOffCost)
+            Offensive term
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.TextPredictionBadWord)
+            Report As
         </th>
-        <th></th>
     </tr>
 
     @foreach (var item in Model)
     {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Word)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Restricted)
+                @Html.ActionLink(item.Word, "Details", new { id = item.DictionaryWordID })
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.TextPredictionCost)
@@ -52,12 +48,12 @@
                 @Html.DisplayFor(modelItem => item.TextPredictionBackOffCost)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TextPredictionBadWord)
+                @(item.TextPredictionBadWord?"Yes":"")
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.DictionaryWordID }) |
-                @Html.ActionLink("Details", "Details", new { id = item.DictionaryWordID }) |
-                @Html.ActionLink("Delete", "Delete", new { id = item.DictionaryWordID })
+                @Html.ActionLink("Misspelling", "Misspelling", new { id = item.DictionaryWordID }) |
+                @Html.ActionLink("Invalid", "InvalidWord", new { id = item.DictionaryWordID }) |
+                @(item.TextPredictionBadWord ? @Html.ActionLink("Not Offensive", "NonOffensiveWord", new { id = item.DictionaryWordID }) : @Html.ActionLink("Offensive", "OffensiveWord", new { id = item.DictionaryWordID }))
             </td>
         </tr>
     }
