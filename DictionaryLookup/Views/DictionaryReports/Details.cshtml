@@ -11,7 +11,7 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.WordID)
+            Word
         </dt>
 
         <dd>
@@ -19,7 +19,7 @@
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.LanguageID)
+            Language
         </dt>
 
         <dd>
@@ -27,15 +27,7 @@
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.DictionaryVersion)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.DictionaryVersion)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.ReportDateTime)
+            Date/Time
         </dt>
 
         <dd>
@@ -43,15 +35,15 @@
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.ReportType)
+            Error Reported
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.ReportType)
+            @Html.DisplayFor(model => model.ErrorTypeID)
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.UserID)
+            Username
         </dt>
 
         <dd>
@@ -59,7 +51,7 @@
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.Notes)
+            Comments
         </dt>
 
         <dd>
@@ -68,7 +60,3 @@
 
     </dl>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.DictionaryReportId }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>

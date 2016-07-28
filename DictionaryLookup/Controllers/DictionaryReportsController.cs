@@ -21,12 +21,8 @@ namespace DictionaryLookup.Controllers
         }
 
         // GET: DictionaryReports/Details/5
-        public ActionResult Details(int? id)
+        public ActionResult Details(Int64 id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
             DictionaryReport dictionaryReport = db.DictionaryReports.Find(id);
             if (dictionaryReport == null)
             {
@@ -56,63 +52,6 @@ namespace DictionaryLookup.Controllers
             }
 
             return View(dictionaryReport);
-        }
-
-        // GET: DictionaryReports/Edit/5
-        public ActionResult Edit(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            DictionaryReport dictionaryReport = db.DictionaryReports.Find(id);
-            if (dictionaryReport == null)
-            {
-                return HttpNotFound();
-            }
-            return View(dictionaryReport);
-        }
-
-        // POST: DictionaryReports/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "DictionaryReportId,WordID,LanguageID,DictionaryVersion,ReportDateTime,ReportType,UserID,Notes")] DictionaryReport dictionaryReport)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Entry(dictionaryReport).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(dictionaryReport);
-        }
-
-        // GET: DictionaryReports/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            DictionaryReport dictionaryReport = db.DictionaryReports.Find(id);
-            if (dictionaryReport == null)
-            {
-                return HttpNotFound();
-            }
-            return View(dictionaryReport);
-        }
-
-        // POST: DictionaryReports/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            DictionaryReport dictionaryReport = db.DictionaryReports.Find(id);
-            db.DictionaryReports.Remove(dictionaryReport);
-            db.SaveChanges();
-            return RedirectToAction("Index");
         }
 
         protected override void Dispose(bool disposing)

@@ -51,9 +51,9 @@
                 @(item.TextPredictionBadWord?"Yes":"")
             </td>
             <td>
-                @Html.ActionLink("Misspelling", "Misspelling", new { id = item.DictionaryWordID }) |
-                @Html.ActionLink("Invalid", "InvalidWord", new { id = item.DictionaryWordID }) |
-                @(item.TextPredictionBadWord ? @Html.ActionLink("Not Offensive", "NonOffensiveWord", new { id = item.DictionaryWordID }) : @Html.ActionLink("Offensive", "OffensiveWord", new { id = item.DictionaryWordID }))
+                @Html.ActionLink("Misspelling", "ReportError", new { wordid = item.DictionaryWordID, errorid = 1 }) |
+                @Html.ActionLink("Invalid", "ReportError", new { wordid = item.DictionaryWordID, errorid = 2 }) |
+                @(item.TextPredictionBadWord ? @Html.ActionLink("Not Offensive", "ReportError", new { wordid = item.DictionaryWordID, errorid = 3 }) : @Html.ActionLink("Offensive", "ReportError", new { wordid = item.DictionaryWordID, errorid = 2 }))
             </td>
         </tr>
     }

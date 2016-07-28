@@ -24,7 +24,7 @@
             @Html.DisplayNameFor(model => model.ReportDateTime)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ReportType)
+            @Html.DisplayNameFor(model => model.ErrorTypeID)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.UserID)
@@ -50,7 +50,7 @@
             @Html.DisplayFor(modelItem => item.ReportDateTime)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.ReportType)
+            @Html.DisplayFor(modelItem => item.ErrorTypeID)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.UserID)
@@ -59,9 +59,7 @@
             @Html.DisplayFor(modelItem => item.Notes)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.DictionaryReportId }) |
-            @Html.ActionLink("Details", "Details", new { id=item.DictionaryReportId }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.DictionaryReportId })
+            @Html.ActionLink("Details", "Details", new { id=item.DictionaryReportId })
         </td>
     </tr>
 }

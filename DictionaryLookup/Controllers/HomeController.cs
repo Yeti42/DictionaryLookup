@@ -117,48 +117,15 @@ namespace DictionaryLookup.Controllers
             }
             return View(dictionaryWord);
         }
-
-        // Bad Word selected for specific word
-        public ActionResult OffensiveWord(int? id)
+        
+        public ActionResult ReportError(Int64 wordid, Int16 errorid)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            DictionaryWord dictionaryWord = db.DictionaryWords.Find(id);
-            if (dictionaryWord == null)
-            {
-                return HttpNotFound();
-            }
-            return RedirectToAction("Index");
-            //return View(dictionaryWord);
-        }
-
-        // Misspelling selected for specific word
-        public ActionResult Misspelling(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            DictionaryWord dictionaryWord = db.DictionaryWords.Find(id);
-            if (dictionaryWord == null)
-            {
-                return HttpNotFound();
-            }
-            return RedirectToAction("Index");
-        }
-
-        // POST: Home/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            DictionaryWord dictionaryWord = db.DictionaryWords.Find(id);
-            db.DictionaryWords.Remove(dictionaryWord);
+            DictionaryReport dr = new DictionaryReport(wordid, errorid, 1, "");
+            db.DictionaryReports.Add(dr);
             db.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("Details", "DictionaryReports", new { id = dr.DictionaryReportId });
         }
+
 
         protected override void Dispose(bool disposing)
         {
