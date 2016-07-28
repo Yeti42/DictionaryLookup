@@ -179,8 +179,12 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\DictionaryReportsController.cs" />
+    <Compile Include="Controllers\ErrorTypesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LanguagesController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -208,12 +212,20 @@
     <Compile Include="Migrations\201607252338038_Initial5.Designer.cs">
       <DependentUpon>201607252338038_Initial5.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201607280226073_Initial6.cs" />
+    <Compile Include="Migrations\201607280226073_Initial6.Designer.cs">
+      <DependentUpon>201607280226073_Initial6.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\DictionaryLookupContext.cs" />
+    <Compile Include="Models\DictionaryReport.cs" />
     <Compile Include="Models\DictionaryWord.cs" />
+    <Compile Include="Models\ErrorType.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\Languages.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -282,9 +294,17 @@
     <Content Include="Views\Home\Delete.cshtml" />
     <Content Include="Views\Home\Details.cshtml" />
     <Content Include="Views\Home\Edit.cshtml" />
+    <Content Include="Views\DictionaryReports\Create.cshtml" />
+    <Content Include="Views\DictionaryReports\Delete.cshtml" />
+    <Content Include="Views\DictionaryReports\Details.cshtml" />
+    <Content Include="Views\DictionaryReports\Edit.cshtml" />
+    <Content Include="Views\DictionaryReports\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\ErrorTypes\" />
+    <Folder Include="Views\Languages\" />
+    <Folder Include="Views\Users\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -312,6 +332,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201607252338038_Initial5.resx">
       <DependentUpon>201607252338038_Initial5.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201607280226073_Initial6.resx">
+      <DependentUpon>201607280226073_Initial6.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

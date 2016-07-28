@@ -1,0 +1,74 @@
+﻿@model DictionaryLookup.Models.DictionaryReport
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DictionaryReport</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.WordID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.WordID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LanguageID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LanguageID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DictionaryVersion)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DictionaryVersion)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ReportDateTime)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ReportDateTime)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ReportType)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ReportType)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.UserID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.UserID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Notes)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Notes)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.DictionaryReportId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

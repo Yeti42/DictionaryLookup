@@ -1,0 +1,69 @@
+﻿@model IEnumerable<DictionaryLookup.Models.DictionaryReport>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.WordID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.LanguageID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.DictionaryVersion)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ReportDateTime)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ReportType)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UserID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Notes)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.WordID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.LanguageID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.DictionaryVersion)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ReportDateTime)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ReportType)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.UserID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Notes)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.DictionaryReportId }) |
+            @Html.ActionLink("Details", "Details", new { id=item.DictionaryReportId }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.DictionaryReportId })
+        </td>
+    </tr>
+}
+
+</table>

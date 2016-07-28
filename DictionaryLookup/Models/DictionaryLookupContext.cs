@@ -20,5 +20,13 @@ namespace DictionaryLookup.Models
         }
 
         public System.Data.Entity.DbSet<DictionaryLookup.Models.DictionaryWord> DictionaryWords { get; set; }
+
+        public System.Data.Entity.DbSet<DictionaryLookup.Models.Languages> Languages { get; set; }
+
+        public System.Data.Entity.DbSet<DictionaryLookup.Models.DictionaryReport> DictionaryReports { get; set; }
+
+        public System.Data.Entity.DbSet<DictionaryLookup.Models.User> Users { get; set; }
+
+        public System.Data.Entity.DbSet<DictionaryLookup.Models.ErrorType> ErrorTypes { get; set; }
     }
 }

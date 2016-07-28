@@ -18,6 +18,27 @@ namespace DictionaryLookup.Migrations
 
         protected override void Seed(DictionaryLookup.Models.DictionaryLookupContext context)
         {
+            context.ErrorTypes.AddOrUpdate(p => p.ErrorTypeID,
+                new ErrorType { ErrorTypeID = 0, ErrorTypeName = "Misspelling" },
+                new ErrorType { ErrorTypeID = 1, ErrorTypeName = "Invalid" },
+                new ErrorType { ErrorTypeID = 2, ErrorTypeName = "Offensive" },
+                new ErrorType { ErrorTypeID = 3, ErrorTypeName = "Inoffensive" });
+
+            context.Users.AddOrUpdate(p => p.UserID,
+                new User { UserID = 0, UserContact = "Unknown" },
+                new User { UserID = 1, UserContact = "davestev" });
+
+            context.Languages.AddOrUpdate(p => p.LanguagesID,
+                new Languages { LanguagesID = 0, BCP47 = "en-US", FriendlyName = "English (United States)" },
+                new Languages { LanguagesID = 0, BCP47 = "en-GB", FriendlyName = "English (Great Britain)" },
+                new Languages { LanguagesID = 0, BCP47 = "fr-FR", FriendlyName = "French (France)" },
+                new Languages { LanguagesID = 0, BCP47 = "it-IT", FriendlyName = "Italian" },
+                new Languages { LanguagesID = 0, BCP47 = "de-DE", FriendlyName = "German (Germany)" },
+                new Languages { LanguagesID = 0, BCP47 = "es-ES", FriendlyName = "Spanish (Spain)" },
+                new Languages { LanguagesID = 0, BCP47 = "es-MX", FriendlyName = "Spanish (Mexico)" });
+
+
+            /*
             // Empties the Dictionary Words table
             //context.Database.ExecuteSqlCommand("DELETE FROM DictionaryWords");
             //context.SaveChanges();
@@ -142,6 +163,7 @@ namespace DictionaryLookup.Migrations
                 context.DictionaryWords.Add(wordsArray[i]);
             }
             context.SaveChanges();
+            */
         }
     }
 }
