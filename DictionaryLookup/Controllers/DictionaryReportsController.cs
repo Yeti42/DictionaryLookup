@@ -21,14 +21,33 @@ namespace DictionaryLookup.Controllers
         }
 
         // GET: DictionaryReports/Details/5
-        public ActionResult Details(Int64 id)
+        public ActionResult Details(Int32 id)
         {
-            DictionaryReport dictionaryReport = db.DictionaryReports.Find(id);
-            if (dictionaryReport == null)
-            {
-                return HttpNotFound();
-            }
-            return View(dictionaryReport);
+            //DictionaryReport dictionaryReport = db.DictionaryReports.Find(id);
+            //if (dictionaryReport == null)
+            //{
+            //    return HttpNotFound();
+            //}
+
+            //var errorReport = from o in db.Orders
+            //                  join u in db.Users on o.UserId equals u.Id into ou
+            //                  where o.UserId == uId
+            //                  from o in ou.DefaultIfEmpty()
+            //                  select o;
+
+            var errorReport = from r1 in db.DictionaryReports
+                              where r1.DictionaryReportId == id
+                              join e1 in db.ErrorTypes on r1.ErrorTypeID equals e1.ErrorTypeID
+                              join u1 in db.Users on r1.UserID equals u1.UserID
+                              join l1 in db.Languages on r1.LanguageID equals l1.LanguagesID
+                              join w1 in db.DictionaryWords on r1.WordID equals w1.DictionaryWordID
+                              select new { r1, e1.ErrorTypeName, u1.UserContact, l1.FriendlyName, w1.Word};
+
+            return View(new ErrorReportViewModel(errorReport.First().r1,
+                                                 errorReport.First().ErrorTypeName,
+                                                 errorReport.First().UserContact,
+                                                 errorReport.First().FriendlyName,
+                                                 errorReport.First().Word));
         }
 
         // GET: DictionaryReports/Create
