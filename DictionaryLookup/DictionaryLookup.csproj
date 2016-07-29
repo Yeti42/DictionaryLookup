@@ -291,14 +291,8 @@
     <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
-    <Content Include="Views\Home\Create.cshtml" />
-    <Content Include="Views\Home\Delete.cshtml" />
     <Content Include="Views\Home\Details.cshtml" />
-    <Content Include="Views\Home\Edit.cshtml" />
-    <Content Include="Views\DictionaryReports\Create.cshtml" />
-    <Content Include="Views\DictionaryReports\Delete.cshtml" />
     <Content Include="Views\DictionaryReports\Details.cshtml" />
-    <Content Include="Views\DictionaryReports\Edit.cshtml" />
     <Content Include="Views\DictionaryReports\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>

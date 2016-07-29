@@ -49,30 +49,7 @@ namespace DictionaryLookup.Controllers
                                                  errorReport.First().FriendlyName,
                                                  errorReport.First().Word));
         }
-
-        // GET: DictionaryReports/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: DictionaryReports/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "DictionaryReportId,WordID,LanguageID,DictionaryVersion,ReportDateTime,ReportType,UserID,Notes")] DictionaryReport dictionaryReport)
-        {
-            if (ModelState.IsValid)
-            {
-                db.DictionaryReports.Add(dictionaryReport);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-
-            return View(dictionaryReport);
-        }
-
+        
         protected override void Dispose(bool disposing)
         {
             if (disposing)
