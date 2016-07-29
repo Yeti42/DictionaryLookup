@@ -28,5 +28,9 @@ namespace DictionaryLookup.Models
         public System.Data.Entity.DbSet<DictionaryLookup.Models.User> Users { get; set; }
 
         public System.Data.Entity.DbSet<DictionaryLookup.Models.ErrorType> ErrorTypes { get; set; }
+
+        public System.Data.Entity.DbSet<DictionaryLookup.Models.WordString> WordStrings { get; set; }
+
+        public System.Data.Entity.DbSet<DictionaryLookup.Models.NGramEntry> NGramEntries { get; set; }
     }
 }

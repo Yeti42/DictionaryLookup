@@ -184,7 +184,9 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LanguagesController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\NGramEntriesController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
+    <Compile Include="Controllers\WordStringsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -216,9 +218,14 @@
     <Compile Include="Migrations\201607280226073_Initial6.Designer.cs">
       <DependentUpon>201607280226073_Initial6.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201607292247349_Initial7.cs" />
+    <Compile Include="Migrations\201607292247349_Initial7.Designer.cs">
+      <DependentUpon>201607292247349_Initial7.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\DetailsViewModels.cs" />
+    <Compile Include="Models\DictionaryEntry.cs" />
     <Compile Include="Models\DictionaryLookupContext.cs" />
     <Compile Include="Models\DictionaryReport.cs" />
     <Compile Include="Models\DictionaryWord.cs" />
@@ -226,7 +233,10 @@
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\Languages.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\NGramEntry.cs" />
+    <Compile Include="Models\NGramTags.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Models\WordString.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -299,7 +309,9 @@
     <Folder Include="App_Data\" />
     <Folder Include="Views\ErrorTypes\" />
     <Folder Include="Views\Languages\" />
+    <Folder Include="Views\NGramEntries\" />
     <Folder Include="Views\Users\" />
+    <Folder Include="Views\WordStrings\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -330,6 +342,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201607280226073_Initial6.resx">
       <DependentUpon>201607280226073_Initial6.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201607292247349_Initial7.resx">
+      <DependentUpon>201607292247349_Initial7.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

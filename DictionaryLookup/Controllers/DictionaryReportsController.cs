@@ -23,18 +23,6 @@ namespace DictionaryLookup.Controllers
         // GET: DictionaryReports/Details/5
         public ActionResult Details(Int32 id)
         {
-            //DictionaryReport dictionaryReport = db.DictionaryReports.Find(id);
-            //if (dictionaryReport == null)
-            //{
-            //    return HttpNotFound();
-            //}
-
-            //var errorReport = from o in db.Orders
-            //                  join u in db.Users on o.UserId equals u.Id into ou
-            //                  where o.UserId == uId
-            //                  from o in ou.DefaultIfEmpty()
-            //                  select o;
-
             var errorReport = from r1 in db.DictionaryReports
                               where r1.DictionaryReportId == id
                               join e1 in db.ErrorTypes on r1.ErrorTypeID equals e1.ErrorTypeID
