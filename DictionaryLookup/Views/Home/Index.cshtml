@@ -25,9 +25,6 @@
             TP cost
         </th>
         <th>
-            BO cost
-        </th>
-        <th>
             Offensive term
         </th>
         <th>
@@ -42,10 +39,13 @@
                 @Html.ActionLink(item.Word, "Details", new { id = item.DictionaryWordID })
             </td>
             <td>
+                @{
+                    double p = (item.TextPredictionCost == 255) ?
+                            Math.Pow(10.0, -10.0) : Math.Pow(10.0, -8.0 * ((double)(item.TextPredictionCost) / 254.0));
+                    string v = p.ToString("e3");
+                }
                 @Html.DisplayFor(modelItem => item.TextPredictionCost)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TextPredictionBackOffCost)
+                @(" (" + v + ")")
             </td>
             <td>
                 @(item.TextPredictionBadWord?"Yes":"")
