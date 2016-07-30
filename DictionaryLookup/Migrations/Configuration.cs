@@ -18,7 +18,6 @@ namespace DictionaryLookup.Migrations
 
         protected override void Seed(DictionaryLookup.Models.DictionaryLookupContext context)
         {
-            /*
             // Empties the Dictionary Words table
             context.Database.ExecuteSqlCommand("DELETE FROM WordStrings");
             context.Database.ExecuteSqlCommand("DELETE FROM NGramEntry");
@@ -41,9 +40,9 @@ namespace DictionaryLookup.Migrations
                     string line = tr.ReadLine();
 
                     // Extract the word
-                    string word = line.Contains("\t") ? line.Remove(line.IndexOf('\t')) : line;
+                    string nGramString = line.Contains("\t") ? line.Remove(line.IndexOf('\t')) : line;
                     int NGram = 1;
-                    foreach (char c in word) if (c == ' ') NGram++;
+                    foreach (char c in nGramString) if (c == ' ') NGram++;
 
                     string tagString = "";
                     if (line.Contains("\t#"))
@@ -71,29 +70,12 @@ namespace DictionaryLookup.Migrations
                         {
                             continueCost += continueCosts.Last();
                         }
-                        continueStrings.Add(word);
+                        continueStrings.Add(nGramString);
                         continueCosts.Add(continueCost);
                         continueNGram.Add(NGram);
                     }
                     if (!line.Contains("\t#"))
                     {
-                        // Parse Tag0 for this word
-                        // Dialect filter
-                        // US English only for now (i.e. bit 1)
-                        bool spellerRestricted = false;
-                        Int16 spellerFrequency = 0;
-                        if (tagString.Contains("0=0x"))
-                        {
-                            Int32 dialectTag = Int32.Parse(tagString.Substring(tagString.IndexOf("0=0x") + 11, 1), System.Globalization.NumberStyles.HexNumber);
-                            if ((dialectTag & 1) == 0)
-                            {
-                                // Has a dialect tag and it does not have bit 1 set.
-                                continue;
-                            }
-                            spellerRestricted = ((Int32.Parse(tagString.Substring(tagString.IndexOf("0=0x") + 10, 1), System.Globalization.NumberStyles.HexNumber) & 1) > 0);
-                            spellerFrequency = (Int16)(Int32.Parse(tagString.Substring(tagString.IndexOf("0=0x") + 9, 1), System.Globalization.NumberStyles.HexNumber) & 3);
-                        }
-
                         // Parse Tag1 for this line
                         Int16 stopCost = (Int16)(0);
                         // Continue cost resets at the space so only add the continue cost if the length of the continue string is at or beyond the
@@ -107,7 +89,7 @@ namespace DictionaryLookup.Migrations
                         if (tagString.Contains("1=0x"))
                         {
                             // Extract the stop cost and add to the current continue cost
-                            string tag1ValueString = tagString.Substring(tagString.IndexOf("1=0x")+4, 8);
+                            string tag1ValueString = tagString.Substring(tagString.IndexOf("1=0x") + 4, 8);
                             stopCost += Int16.Parse(tag1ValueString.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
                             // Extract the backoff cost
                             backoffCost = Int16.Parse(tag1ValueString.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
@@ -115,16 +97,15 @@ namespace DictionaryLookup.Migrations
                             badWord = ((Int32.Parse(tag1ValueString.Substring(1, 1), System.Globalization.NumberStyles.HexNumber) & 1) == 1);
                         }
 
-                        // Parse Tag5
-                        Int16 hwrCost = 4091; // Default HWR cost for a valid word
-                        Int16 hwrCallig = 0;
-                        if (tagString.Contains("5=0x"))
-                        {
-                            string tag5ValueString = tagString.Substring(tagString.IndexOf("5=0x")+4, 8);
-                            hwrCost = Int16.Parse(tag5ValueString.Substring(4, 4), System.Globalization.NumberStyles.HexNumber);
-                            hwrCallig = (Int16)(Int32.Parse(tag5ValueString.Substring(5, 1), System.Globalization.NumberStyles.HexNumber) & 3);
-                        }
+                        Int64 ngtID = ReadOrAddNGramTag(context, new NGramTags(tagString, stopCost, backoffCost, badWord));
+                        Int64 ngeID = ReadOrCreateNGramEntry(context, nGramString);
 
+
+                    }
+                }
+            }
+
+                            /*
                         //if (wordsArray[wordcount % wordsArray.Length] == null)
                         {
                             wordsArray[wordcount % wordsArray.Length] = new WordString();
@@ -141,12 +122,81 @@ namespace DictionaryLookup.Migrations
                     }
                 }
             }
-            for(int i=0; i < wordcount % wordsArray.Length; i++)
+            for (int i = 0; i < wordcount % wordsArray.Length; i++)
             {
                 context.DictionaryWords.Add(wordsArray[i]);
             }
             context.SaveChanges();
             */
+        }
+
+
+        private Int64 ReadOrAddNGramTag(DictionaryLookup.Models.DictionaryLookupContext context, NGramTags ngt)
+        {
+            var nid = from a in context.NGramTags
+                      where a.TextPredictionCost.Equals(ngt.TextPredictionCost)
+                      where a.TextPredictionBackOffCost.Equals(ngt.TextPredictionBackOffCost)
+                      where a.HWRCalligraphyCost.Equals(ngt.HWRCalligraphyCost)
+                      where a.HWRCost.Equals(ngt.HWRCost)
+                      where a.Restricted.Equals(ngt.Restricted)
+                      where a.SpellerFrequency.Equals(ngt.SpellerFrequency)
+                      where a.TextPredictionBadWord.Equals(ngt.TextPredictionBadWord)
+                      select a.NGramTagsID;
+            if (nid.Count() > 0)
+            {
+                return nid.First();
+            }
+            context.NGramTags.Add(ngt);
+            return ngt.NGramTagsID;
+        }
+
+        public Int64 ReadOrCreateNGramEntry(DictionaryLookup.Models.DictionaryLookupContext context, string ngram)
+        {
+            Int64 WordID = 0;
+            Int64 Previous1WordID = 0;
+            Int64 Previous2WordID = 0;
+            string[] words = ngram.Split(' ');
+            Int32 NGram = words.Count();
+
+            WordID = ReadOrCreateWord(context, words[NGram - 1]);
+
+            if (NGram > 1)
+            {
+                Previous1WordID = ReadOrCreateWord(context, words[NGram - 2]);
+            }
+
+            if (NGram > 2)
+            {
+                Previous2WordID = ReadOrCreateWord(context, words[NGram - 3]);
+            }
+
+            // Made sure all the words are in the WordStrings table now we need to find or create an NGram entry
+            var wid = from a in context.NGramEntries
+                      where a.WordID.Equals(WordID)
+                      where a.Previous1WordID.Equals(Previous1WordID)
+                      where a.Previous2WordID.Equals(Previous2WordID)
+                      select a.NGramEntryID;
+            if (wid.Count() == 0)
+            {
+                return wid.First();
+            }
+            NGramEntry nge = new NGramEntry(WordID, Previous1WordID, Previous2WordID);
+            context.NGramEntries.Add(nge);
+            return nge.NGramEntryID;
+        }
+
+        private Int64 ReadOrCreateWord(DictionaryLookup.Models.DictionaryLookupContext context, string word)
+        {
+            var wid = from a in context.WordStrings
+                      where a.Word.Equals(word)
+                      select a.WordStringID;
+            if (wid.Count() > 0)
+            {
+                return wid.First();
+            }
+            WordString ws = new WordString(word);
+            context.WordStrings.Add(ws);
+            return ws.WordStringID;
         }
     }
 }

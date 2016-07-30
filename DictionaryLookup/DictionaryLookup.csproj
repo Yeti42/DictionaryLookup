@@ -179,6 +179,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\DictionaryEntriesController.cs" />
     <Compile Include="Controllers\DictionaryReportsController.cs" />
     <Compile Include="Controllers\ErrorTypesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -305,6 +306,11 @@
     <Content Include="Views\Home\Details.cshtml" />
     <Content Include="Views\DictionaryReports\Details.cshtml" />
     <Content Include="Views\DictionaryReports\Index.cshtml" />
+    <Content Include="Views\DictionaryEntries\Create.cshtml" />
+    <Content Include="Views\DictionaryEntries\Delete.cshtml" />
+    <Content Include="Views\DictionaryEntries\Details.cshtml" />
+    <Content Include="Views\DictionaryEntries\Edit.cshtml" />
+    <Content Include="Views\DictionaryEntries\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
