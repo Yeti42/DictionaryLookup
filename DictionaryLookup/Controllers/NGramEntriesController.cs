@@ -20,38 +20,6 @@ namespace DictionaryLookup.Controllers
             return View(db.NGramEntries.ToList());
         }
         
-        // POST: NGramEntries/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "NGramEntryID,WordID,Previous1WordID,Previous2WordID,NGram")] NGramEntry nGramEntry)
-        {
-            if (ModelState.IsValid)
-            {
-                db.NGramEntries.Add(nGramEntry);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-
-            return View(nGramEntry);
-        }
-
-        // GET: NGramEntries/Edit/5
-        public ActionResult Edit(long? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            NGramEntry nGramEntry = db.NGramEntries.Find(id);
-            if (nGramEntry == null)
-            {
-                return HttpNotFound();
-            }
-            return View(nGramEntry);
-        }
-                
         protected override void Dispose(bool disposing)
         {
             if (disposing)

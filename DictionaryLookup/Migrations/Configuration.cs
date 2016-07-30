@@ -27,7 +27,7 @@ namespace DictionaryLookup.Migrations
             WordString[] wordsArray = new WordString[1000];
             NGramEntry[] nGramArray = new NGramEntry[1000];
 
-            Int64 wordcount = 0;
+            Int64 ngramcount = 0;
 
             using (FileStream fs = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + @"\english_united_states.testtrie.txt"))
             using (TextReader tr = new StreamReader(fs))
@@ -100,34 +100,20 @@ namespace DictionaryLookup.Migrations
                         Int64 ngtID = ReadOrAddNGramTag(context, new NGramTags(tagString, stopCost, backoffCost, badWord));
                         Int64 ngeID = ReadOrCreateNGramEntry(context, nGramString);
 
+                        Models.DictionaryEntry de = new Models.DictionaryEntry(ngeID, ngtID);
 
-                    }
-                }
-            }
+                        context.DictionaryEntries.Add(de);
 
-                            /*
-                        //if (wordsArray[wordcount % wordsArray.Length] == null)
+                        if(ngramcount++ >= 1000)
                         {
-                            wordsArray[wordcount % wordsArray.Length] = new WordString();
-                        }
-                        wordsArray[wordcount % wordsArray.Length].WordString = wordcount;
-                        wordsArray[wordcount % wordsArray.Length].Set(word, spellerRestricted, spellerFrequency, stopCost, backoffCost, badWord, hwrCost, hwrCallig);
-
-                        if (++wordcount % wordsArray.Length == 0)
-                        {
-                            context.WordStrings.AddOrUpdate(wordsArray);
-                            context.WordStrings.AddOrUpdate(wordsArray);
                             context.SaveChanges();
+                            //return;
                         }
+
                     }
                 }
-            }
-            for (int i = 0; i < wordcount % wordsArray.Length; i++)
-            {
-                context.DictionaryWords.Add(wordsArray[i]);
             }
             context.SaveChanges();
-            */
         }
 
 
