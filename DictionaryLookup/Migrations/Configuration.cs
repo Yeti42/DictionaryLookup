@@ -19,9 +19,9 @@ namespace DictionaryLookup.Migrations
         protected override void Seed(DictionaryLookup.Models.DictionaryLookupContext context)
         {
             // Empties the Dictionary Words table
-            context.Database.ExecuteSqlCommand("DELETE FROM WordStrings");
-            context.Database.ExecuteSqlCommand("DELETE FROM NGramEntry");
-            context.SaveChanges();
+            //context.Database.ExecuteSqlCommand("DELETE FROM WordStrings");
+            //context.Database.ExecuteSqlCommand("DELETE FROM NGramEntry");
+            //context.SaveChanges();
 
             //List<DictionaryWord> wordsToAdd = new List<DictionaryWord>();
             WordString[] wordsArray = new WordString[1000];
@@ -103,30 +103,29 @@ namespace DictionaryLookup.Migrations
                         Models.DictionaryEntry de = new Models.DictionaryEntry(ngeID, ngtID);
 
                         context.DictionaryEntries.Add(de);
+                        context.SaveChanges();
 
-                        if(ngramcount++ >= 1000)
-                        {
-                            context.SaveChanges();
-                            //return;
-                        }
+                        //if(ngramcount++ >= 1000)
+                        //{
+                        //    return;
+                        //}
 
                     }
                 }
             }
-            context.SaveChanges();
         }
 
 
         private Int64 ReadOrAddNGramTag(DictionaryLookup.Models.DictionaryLookupContext context, NGramTags ngt)
         {
             var nid = from a in context.NGramTags
-                      where a.TextPredictionCost.Equals(ngt.TextPredictionCost)
-                      where a.TextPredictionBackOffCost.Equals(ngt.TextPredictionBackOffCost)
-                      where a.HWRCalligraphyCost.Equals(ngt.HWRCalligraphyCost)
-                      where a.HWRCost.Equals(ngt.HWRCost)
-                      where a.Restricted.Equals(ngt.Restricted)
-                      where a.SpellerFrequency.Equals(ngt.SpellerFrequency)
-                      where a.TextPredictionBadWord.Equals(ngt.TextPredictionBadWord)
+                      where a.TextPredictionCost == ngt.TextPredictionCost
+                      where a.TextPredictionBackOffCost == ngt.TextPredictionBackOffCost
+                      where a.HWRCalligraphyCost == ngt.HWRCalligraphyCost
+                      where a.HWRCost == ngt.HWRCost
+                      where a.Restricted == ngt.Restricted
+                      where a.SpellerFrequency == ngt.SpellerFrequency
+                      where a.TextPredictionBadWord == ngt.TextPredictionBadWord
                       select a.NGramTagsID;
             if (nid.Count() > 0)
             {
@@ -146,23 +145,27 @@ namespace DictionaryLookup.Migrations
 
             WordID = ReadOrCreateWord(context, words[NGram - 1]);
 
+            // In the rare case where a word==previousword (e.g. "very very") and was just created and added to the DB
+            // the query will fail to find it until the recent add is saved. So we need to compare the words first
+            // We only save after each dictionary entry.
             if (NGram > 1)
             {
-                Previous1WordID = ReadOrCreateWord(context, words[NGram - 2]);
+                Previous1WordID = (words[NGram - 2] == words[NGram - 1]) ? WordID : ReadOrCreateWord(context, words[NGram - 2]);
             }
 
             if (NGram > 2)
             {
-                Previous2WordID = ReadOrCreateWord(context, words[NGram - 3]);
+                Previous2WordID = (words[NGram - 3] == words[NGram - 1]) ? WordID :
+                    (words[NGram - 3] == words[NGram - 2]) ? Previous1WordID : ReadOrCreateWord(context, words[NGram - 3]);
             }
 
             // Made sure all the words are in the WordStrings table now we need to find or create an NGram entry
             var wid = from a in context.NGramEntries
-                      where a.WordID.Equals(WordID)
-                      where a.Previous1WordID.Equals(Previous1WordID)
-                      where a.Previous2WordID.Equals(Previous2WordID)
+                      where a.WordID == WordID
+                      where a.Previous1WordID == Previous1WordID
+                      where a.Previous2WordID == Previous2WordID
                       select a.NGramEntryID;
-            if (wid.Count() == 0)
+            if (wid.Count() > 0)
             {
                 return wid.First();
             }
@@ -174,7 +177,7 @@ namespace DictionaryLookup.Migrations
         private Int64 ReadOrCreateWord(DictionaryLookup.Models.DictionaryLookupContext context, string word)
         {
             var wid = from a in context.WordStrings
-                      where a.Word.Equals(word)
+                      where a.Word == word
                       select a.WordStringID;
             if (wid.Count() > 0)
             {
