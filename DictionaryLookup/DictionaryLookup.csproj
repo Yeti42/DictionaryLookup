@@ -185,6 +185,7 @@
     <Compile Include="Controllers\LanguagesController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\NGramEntriesController.cs" />
+    <Compile Include="Controllers\NGramTagsController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Controllers\WordStringsController.cs" />
     <Compile Include="Global.asax.cs">
@@ -310,6 +311,7 @@
     <Folder Include="Views\ErrorTypes\" />
     <Folder Include="Views\Languages\" />
     <Folder Include="Views\NGramEntries\" />
+    <Folder Include="Views\NGramTags\" />
     <Folder Include="Views\Users\" />
     <Folder Include="Views\WordStrings\" />
   </ItemGroup>
