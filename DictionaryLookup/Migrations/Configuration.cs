@@ -97,8 +97,7 @@ namespace DictionaryLookup.Migrations
                         wordStringTable.Add(ws.Word, ws.WordStringID);
                     }
                 }
-                HashSet<string> allNGramsHash = new HashSet<string>();
-                HashSet<NGramEntry> allNGrams = new HashSet<NGramEntry>();
+                List<NGramEntry> allNGrams = new List<NGramEntry>();
                 using (FileStream fs = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + @"\english_united_states.testtrie.txt"))
                 using (TextReader tr = new StreamReader(fs))
                 {
@@ -109,24 +108,21 @@ namespace DictionaryLookup.Migrations
                         {
                             // Extract the words
                             string nGramString = line.Contains("\t") ? line.Remove(line.IndexOf('\t')) : line;
-                            if (allNGramsHash.Add(nGramString))
-                            {
-                                string[] words = nGramString.Split(' ');
-                                Int64 wid = wordStringTable[words.Last().ToString()];
-                                Int64 p1id = (words.Count() > 1) ? wordStringTable[words[words.Count() - 1].ToString()] : 0;
-                                Int64 p2id = (words.Count() > 2) ? wordStringTable[words[words.Count() - 2].ToString()] : 0;
-                                allNGrams.Add(new NGramEntry(wid, p1id, p2id));
-                            }
-                            else
-                            {
-                                throw new Exception("Duplicate NGram: " + nGramString);
-                            }
+                            string[] words = nGramString.Split(' ');
+                            Int64 wid = wordStringTable[words.Last().ToString()];
+                            Int64 p1id = (words.Count() > 1) ? wordStringTable[words[words.Count() - 1].ToString()] : 0;
+                            Int64 p2id = (words.Count() > 2) ? wordStringTable[words[words.Count() - 2].ToString()] : 0;
+                            allNGrams.Add(new NGramEntry(wid, p1id, p2id));
                         }
                     }
                 }
                 //File.WriteAllText(@"C:\temp\log.txt", allNGrams.Count().ToString());
-                context.NGramEntries.AddRange(allNGrams);
-                context.SaveChanges();
+                for (int c = 0; c < allNGrams.Count(); c += 100000)
+                {
+                    int n = Math.Min(100000, allNGrams.Count() - c);
+                    context.NGramEntries.AddRange(allNGrams.GetRange(c, n));
+                    context.SaveChanges();
+                }
             }
 
             /*
