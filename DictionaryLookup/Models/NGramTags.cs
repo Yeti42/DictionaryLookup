@@ -47,6 +47,17 @@ namespace DictionaryLookup.Models
             Set(spellerRestricted, spellerFrequency, stopCost, backoffCost, badWord, hwrCost, hwrCallig);
         }
 
+        public Int64  GetHash()
+        {
+            return (Int64)(Restricted ? 1 : 0) +               // 1 bit
+                   (Int64)(SpellerFrequency * 2) +             // 2 bits
+                   (Int64)(TextPredictionCost * (2 ^ 3)) +           // 8 bits
+                   (Int64)(TextPredictionBackOffCost * (2 ^ 11)) + // 8 bits
+                   (Int64)((TextPredictionBadWord ? (2 ^ 19) : 0)) +     // 1 bit
+                   (Int64)(HWRCost * (2 ^ 20)) +                   // 14 bits
+                   (Int64)(HWRCalligraphyCost * (2 ^ 34));         // 2 bits
+        }
+
         public void Set(bool restricted, Int16 frequency, Int16 stopCost, Int16 backoffCost, bool badWord, Int16 hwrCost, Int16 hwrCallig)
         {
             Restricted = restricted;

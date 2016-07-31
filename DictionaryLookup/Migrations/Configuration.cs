@@ -24,96 +24,266 @@ namespace DictionaryLookup.Migrations
             //context.SaveChanges();
 
             //List<DictionaryWord> wordsToAdd = new List<DictionaryWord>();
-            WordString[] wordsArray = new WordString[1000];
-            NGramEntry[] nGramArray = new NGramEntry[1000];
 
-            Int64 ngramcount = 0;
+            //List<string> allWords = new List<string>();
+            //SortedList<string, int> allTheWords = new SortedList<string, int>();
 
-            using (FileStream fs = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + @"\english_united_states.testtrie.txt"))
-            using (TextReader tr = new StreamReader(fs))
+
+            // Parse the file and find all the words
+            if (false)
             {
-                List<string> continueStrings = new List<string>();
-                List<Int32> continueCosts = new List<int>();
-                List<Int32> continueNGram = new List<int>();
-                while (tr.Peek() > -1)
+                HashSet<string> allWords = new HashSet<string>();
+                HashSet<WordString> allWordStrings = new HashSet<WordString>();
+                using (FileStream fs = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + @"\english_united_states.testtrie.txt"))
+                using (TextReader tr = new StreamReader(fs))
                 {
-                    string line = tr.ReadLine();
-
-                    // Extract the word
-                    string nGramString = line.Contains("\t") ? line.Remove(line.IndexOf('\t')) : line;
-                    int NGram = 1;
-                    foreach (char c in nGramString) if (c == ' ') NGram++;
-
-                    string tagString = "";
-                    if (line.Contains("\t#"))
+                    while (tr.Peek() > -1)
                     {
-                        tagString = line.Substring(line.IndexOf("\t#") + 2);
-                    }
-                    else if (line.Contains("\t|"))
-                    {
-                        tagString = line.Substring(line.IndexOf("\t|") + 2);
-                    }
-
-                    // Unwrap the continue costs back so that the last one matches the current label
-                    while ((continueStrings.Count > 0) && (!line.StartsWith(continueStrings.Last())))
-                    {
-                        continueStrings.RemoveRange(continueStrings.Count - 1, 1);
-                        continueCosts.RemoveRange(continueCosts.Count - 1, 1);
-                        continueNGram.RemoveRange(continueNGram.Count - 1, 1);
-                    }
-
-                    // Update the continue node state
-                    if (tagString.Contains("1="))
-                    {
-                        Int32 continueCost = Int32.Parse(tagString.Substring(tagString.IndexOf("1=0x") + 10, 2), System.Globalization.NumberStyles.HexNumber);
-                        if ((continueStrings.Count > 0) && (continueNGram.Last() == NGram))
+                        string line = tr.ReadLine();
+                        if (!line.Contains("\t#"))
                         {
-                            continueCost += continueCosts.Last();
+                            // Extract the words
+                            string nGramString = line.Contains("\t") ? line.Remove(line.IndexOf('\t')) : line;
+                            foreach (string w in nGramString.Split(' '))
+                            {
+                                if (allWords.Add(w))
+                                {
+                                    allWordStrings.Add(new WordString(w));
+                                }
+                            }
                         }
-                        continueStrings.Add(nGramString);
-                        continueCosts.Add(continueCost);
-                        continueNGram.Add(NGram);
                     }
-                    if (!line.Contains("\t#"))
+                }
+                context.WordStrings.AddRange(allWordStrings);
+                context.SaveChanges();
+            }
+
+            // Re-parse the file to find all the NGram Tags
+            if (false)
+            {
+                HashSet<Int64> allTagsHash = new HashSet<Int64>();
+                HashSet<NGramTags> allNGramTags = new HashSet<NGramTags>();
+                using (FileStream fs = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + @"\english_united_states.testtrie.txt"))
+                using (TextReader tr = new StreamReader(fs))
+                {
+                    intermediateStates.Clear();
+                    while (tr.Peek() > -1)
                     {
-                        // Parse Tag1 for this line
-                        Int16 stopCost = (Int16)(0);
-                        // Continue cost resets at the space so only add the continue cost if the length of the continue string is at or beyond the
-                        // the last space in the ngram we're adding
-                        if ((continueStrings.Count > 0) && (continueNGram.Last() == NGram))
+                        NGramTags ngt = ParseTags(tr.ReadLine());
+                        if (ngt != null)
                         {
-                            stopCost = (Int16)(continueCosts.Last());
+                            Int64 ngh = ngt.GetHash();
+                            if (allTagsHash.Add(ngh))
+                            {
+                                allNGramTags.Add(ngt);
+                            }
                         }
-                        Int16 backoffCost = 0;
-                        bool badWord = false;
-                        if (tagString.Contains("1=0x"))
-                        {
-                            // Extract the stop cost and add to the current continue cost
-                            string tag1ValueString = tagString.Substring(tagString.IndexOf("1=0x") + 4, 8);
-                            stopCost += Int16.Parse(tag1ValueString.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
-                            // Extract the backoff cost
-                            backoffCost = Int16.Parse(tag1ValueString.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
-                            // Extract the badword bit
-                            badWord = ((Int32.Parse(tag1ValueString.Substring(1, 1), System.Globalization.NumberStyles.HexNumber) & 1) == 1);
-                        }
-
-                        Int64 ngtID = ReadOrAddNGramTag(context, new NGramTags(tagString, stopCost, backoffCost, badWord));
-                        Int64 ngeID = ReadOrCreateNGramEntry(context, nGramString);
-
-                        Models.DictionaryEntry de = new Models.DictionaryEntry(ngeID, ngtID);
-
-                        context.DictionaryEntries.Add(de);
-                        context.SaveChanges();
-
-                        //if(ngramcount++ >= 1000)
-                        //{
-                        //    return;
-                        //}
-
                     }
+                }
+                context.NGramTags.AddRange(allNGramTags);
+                context.SaveChanges();
+            }
+
+            // Re-parse to find the NGrams
+            if (true)
+            {
+                // Create a hash table of all the words 
+                Dictionary<string, Int64> wordStringTable = new Dictionary<string, long>();
+                {
+                    var wss = from a in context.WordStrings
+                              select a;
+                    foreach (WordString ws in wss)
+                    {
+                        wordStringTable.Add(ws.Word, ws.WordStringID);
+                    }
+                }
+                HashSet<string> allNGramsHash = new HashSet<string>();
+                HashSet<NGramEntry> allNGrams = new HashSet<NGramEntry>();
+                using (FileStream fs = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + @"\english_united_states.testtrie.txt"))
+                using (TextReader tr = new StreamReader(fs))
+                {
+                    while (tr.Peek() > -1)
+                    {
+                        string line = tr.ReadLine();
+                        if (!line.Contains("\t#"))
+                        {
+                            // Extract the words
+                            string nGramString = line.Contains("\t") ? line.Remove(line.IndexOf('\t')) : line;
+                            if (allNGramsHash.Add(nGramString))
+                            {
+                                string[] words = nGramString.Split(' ');
+                                Int64 wid = wordStringTable[words.Last().ToString()];
+                                Int64 p1id = (words.Count() > 1) ? wordStringTable[words[words.Count() - 1].ToString()] : 0;
+                                Int64 p2id = (words.Count() > 2) ? wordStringTable[words[words.Count() - 2].ToString()] : 0;
+                                allNGrams.Add(new NGramEntry(wid, p1id, p2id));
+                            }
+                            else
+                            {
+                                throw new Exception("Duplicate NGram: " + nGramString);
+                            }
+                        }
+                    }
+                }
+                //File.WriteAllText(@"C:\temp\log.txt", allNGrams.Count().ToString());
+                context.NGramEntries.AddRange(allNGrams);
+                context.SaveChanges();
+            }
+
+            /*
+            */
+        }
+
+        private NGramTags ParseTags(string line)
+        {
+            string nGramString = line.Split('\t')[0];
+            int NGram = nGramString.Split(' ').Count();
+            string tagString = line.Contains("\t#") ? line.Substring(line.IndexOf("\t#") + 2) :
+                               line.Contains("\t|") ? line.Substring(line.IndexOf("\t|") + 2) : "";
+
+            // Unwrap the continue costs back so that the last one matches the current label
+            while ((intermediateStates.Count > 0) && (!line.StartsWith(intermediateStates.Last().NGramString)))
+            {
+                intermediateStates.RemoveAt(intermediateStates.Count - 1);
+            }
+
+            // Update the continue node state
+            if (tagString.Contains("1=0x"))
+            {
+                Int32 continueCost = Int32.Parse(tagString.Substring(tagString.IndexOf("1=0x") + 10, 2), System.Globalization.NumberStyles.HexNumber);
+                if ((intermediateStates.Count > 0) && (intermediateStates.Last().NGramLength == NGram))
+                {
+                    continueCost += intermediateStates.Last().Cost;
+                }
+                intermediateStates.Add(new IntermediateTags(nGramString, (Int16)continueCost, (Int16)NGram));
+            }
+            if (!line.Contains("\t#"))
+            {
+                // Parse Tag1 for this line
+                // Continue cost resets at the space so only add the continue cost if the length of the continue string is at or beyond the
+                // the last space in the ngram we're adding
+                Int16 stopCost = (Int16)(((intermediateStates.Count > 0) && (intermediateStates.Last().NGramLength == NGram)) ? (intermediateStates.Last().Cost) : 0);
+                Int16 backoffCost = 0;
+                bool badWord = false;
+                if (tagString.Contains("1=0x"))
+                {
+                    // Extract the stop cost and add to the current continue cost
+                    string tag1ValueString = tagString.Substring(tagString.IndexOf("1=0x") + 4, 8);
+                    stopCost += Int16.Parse(tag1ValueString.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+                    // Extract the backoff cost
+                    backoffCost = Int16.Parse(tag1ValueString.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+                    // Extract the badword bit
+                    badWord = ((Int32.Parse(tag1ValueString.Substring(1, 1), System.Globalization.NumberStyles.HexNumber) & 1) == 1);
+                }
+                NGramTags ngt = new NGramTags(tagString, stopCost, backoffCost, badWord);
+                return ngt;
+            }
+            return null;
+        }
+
+        struct IntermediateTags
+        {
+            public IntermediateTags(string s, Int16 c, Int16 n) { NGramLength = n; Cost = c; NGramString = s; }
+            public string NGramString;
+            public Int16 Cost;
+            public Int16 NGramLength;
+        }
+
+        private List<IntermediateTags> intermediateStates = new List<IntermediateTags>();
+
+
+
+
+
+
+        /*
+        Int64 ngramcount = 0;
+
+        using (FileStream fs = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + @"\english_united_states.testtrie.txt"))
+        using (TextReader tr = new StreamReader(fs))
+        {
+            List<string> continueStrings = new List<string>();
+            List<Int32> continueCosts = new List<int>();
+            List<Int32> continueNGram = new List<int>();
+            while (tr.Peek() > -1)
+            {
+                string line = tr.ReadLine();
+
+                // Extract the word
+                string nGramString = line.Contains("\t") ? line.Remove(line.IndexOf('\t')) : line;
+                int NGram = 1;
+                foreach (char c in nGramString) if (c == ' ') NGram++;
+
+                string tagString = "";
+                if (line.Contains("\t#"))
+                {
+                    tagString = line.Substring(line.IndexOf("\t#") + 2);
+                }
+                else if (line.Contains("\t|"))
+                {
+                    tagString = line.Substring(line.IndexOf("\t|") + 2);
+                }
+
+                // Unwrap the continue costs back so that the last one matches the current label
+                while ((continueStrings.Count > 0) && (!line.StartsWith(continueStrings.Last())))
+                {
+                    continueStrings.RemoveRange(continueStrings.Count - 1, 1);
+                    continueCosts.RemoveRange(continueCosts.Count - 1, 1);
+                    continueNGram.RemoveRange(continueNGram.Count - 1, 1);
+                }
+
+                // Update the continue node state
+                if (tagString.Contains("1="))
+                {
+                    Int32 continueCost = Int32.Parse(tagString.Substring(tagString.IndexOf("1=0x") + 10, 2), System.Globalization.NumberStyles.HexNumber);
+                    if ((continueStrings.Count > 0) && (continueNGram.Last() == NGram))
+                    {
+                        continueCost += continueCosts.Last();
+                    }
+                    continueStrings.Add(nGramString);
+                    continueCosts.Add(continueCost);
+                    continueNGram.Add(NGram);
+                }
+                if (!line.Contains("\t#"))
+                {
+                    // Parse Tag1 for this line
+                    Int16 stopCost = (Int16)(0);
+                    // Continue cost resets at the space so only add the continue cost if the length of the continue string is at or beyond the
+                    // the last space in the ngram we're adding
+                    if ((continueStrings.Count > 0) && (continueNGram.Last() == NGram))
+                    {
+                        stopCost = (Int16)(continueCosts.Last());
+                    }
+                    Int16 backoffCost = 0;
+                    bool badWord = false;
+                    if (tagString.Contains("1=0x"))
+                    {
+                        // Extract the stop cost and add to the current continue cost
+                        string tag1ValueString = tagString.Substring(tagString.IndexOf("1=0x") + 4, 8);
+                        stopCost += Int16.Parse(tag1ValueString.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+                        // Extract the backoff cost
+                        backoffCost = Int16.Parse(tag1ValueString.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+                        // Extract the badword bit
+                        badWord = ((Int32.Parse(tag1ValueString.Substring(1, 1), System.Globalization.NumberStyles.HexNumber) & 1) == 1);
+                    }
+
+                    Int64 ngtID = ReadOrAddNGramTag(context, new NGramTags(tagString, stopCost, backoffCost, badWord));
+                    Int64 ngeID = ReadOrCreateNGramEntry(context, nGramString);
+
+                    Models.DictionaryEntry de = new Models.DictionaryEntry(ngeID, ngtID);
+
+                    context.DictionaryEntries.Add(de);
+                    context.SaveChanges();
+
+                    //if(ngramcount++ >= 1000)
+                    //{
+                    //    return;
+                    //}
+
                 }
             }
         }
+    }
+        */ 
 
 
         private Int64 ReadOrAddNGramTag(DictionaryLookup.Models.DictionaryLookupContext context, NGramTags ngt)
