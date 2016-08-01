@@ -30,7 +30,7 @@ namespace DictionaryLookup.Migrations
 
 
             // Parse the file and find all the words
-            if (false)
+            if (true)
             {
                 HashSet<string> allWords = new HashSet<string>();
                 HashSet<WordString> allWordStrings = new HashSet<WordString>();
@@ -44,12 +44,19 @@ namespace DictionaryLookup.Migrations
                         {
                             // Extract the words
                             string nGramString = line.Contains("\t") ? line.Remove(line.IndexOf('\t')) : line;
-                            foreach (string w in nGramString.Split(' '))
+                            string w1 = "", p1 = "", p2 = "";
+                            int n = WordStringsFromNGramString(nGramString, ref w1, ref p1, ref p2);
+                            if (allWords.Add(w1))
                             {
-                                if (allWords.Add(w))
-                                {
-                                    allWordStrings.Add(new WordString(w));
-                                }
+                                allWordStrings.Add(new WordString(w1));
+                            }
+                            if (n > 1 && allWords.Add(p1))
+                            {
+                                allWordStrings.Add(new WordString(p1));
+                            }
+                            if (n > 2 && allWords.Add(p2))
+                            {
+                                allWordStrings.Add(new WordString(p2));
                             }
                         }
                     }
@@ -57,6 +64,7 @@ namespace DictionaryLookup.Migrations
                 context.WordStrings.AddRange(allWordStrings);
                 context.SaveChanges();
             }
+
 
             // Re-parse the file to find all the NGram Tags
             if (false)
@@ -85,7 +93,7 @@ namespace DictionaryLookup.Migrations
             }
 
             // Re-parse to find the NGrams
-            if (true)
+            if (false)
             {
                 // Create a hash table of all the words 
                 Dictionary<string, Int64> wordStringTable = new Dictionary<string, long>();
@@ -124,49 +132,66 @@ namespace DictionaryLookup.Migrations
                     context.SaveChanges();
                 }
             }
-            return;
 
-            Dictionary<Int64, Int64> nGramTagTable = new Dictionary<Int64, Int64>(); // Hash of the tags as key, table index as the value
+            if (true)
             {
-                var ngts = from a in context.NGramTags
-                           select a;
-                foreach (NGramTags ngt in ngts)
+                Dictionary<string, Int64> nGramEntryTable = new Dictionary<string, Int64>(); // Hash of the strings as key, table index as the value
+                // Create a hash table of all the NGram tags
+                Dictionary<Int64, Int64> nGramTagTable = new Dictionary<Int64, Int64>(); // Hash of the tags as key, table index as the value
                 {
-                    nGramTagTable.Add(ngt.GetHash(), ngt.NGramTagsID);
+                    var ngts = from a in context.NGramTags
+                                select a;
+                    foreach (NGramTags ngt in ngts)
+                    {
+                        nGramTagTable.Add(ngt.GetHash(), ngt.NGramTagsID);
+                    }
                 }
-            }
-
-            string s = "" ;
-            Dictionary<string, Int64> nGramEntryTable = new Dictionary<string, Int64>(); // Hash of the strings as key, table index as the value
-            {
-                // Create a hash table of all the words 
+                // Create a hash of all the words
                 Dictionary<Int64, string> wordIndexTable = new Dictionary<Int64, string>();
                 {
-                    var wss = from a in context.WordStrings
-                              select a;
+                    var wss = from a in context.WordStrings select a;
                     foreach (WordString ws in wss)
                     {
                         wordIndexTable.Add(ws.WordStringID, ws.Word);
                     }
                 }
 
-                var nges = from a in context.NGramEntries
-                           select a;
+                string s = "";
+
+                // Hash of NGram strings to NGram tag index
+                // Then we can look up the strings in this hash and get the associated NGram string index
+                var nges = from a in context.NGramEntries select a;
                 foreach (NGramEntry nge in nges)
                 {
                     string ngs = ((nge.Previous2WordID > 0) ? (wordIndexTable[nge.Previous2WordID] + " ") : "") +
                                  ((nge.Previous1WordID > 0) ? (wordIndexTable[nge.Previous1WordID] + " ") : "") +
                                  wordIndexTable[nge.WordID];
-                    s = s + nge.Previous2WordID.ToString() + ", " + nge.Previous1WordID.ToString() + ", " + nge.WordID.ToString() + ", " + ngs + "\n";
-                    File.WriteAllText(@"C:\temp\log.txt", s);
-                    nGramEntryTable.Add(ngs, nge.NGramEntryID);
+                    if(ngs == "and a half")
+                    {
+                        s = s + nge.NGramEntryID.ToString() + ", " + nge.Previous2WordID.ToString() + ", " + nge.Previous1WordID.ToString() + ", " + nge.WordID.ToString() + "\n";
+                        File.WriteAllText(@"C:\temp\log.txt", s);
+                    }
+                    try
+                    {
+                        nGramEntryTable.Add(ngs, nge.NGramEntryID);
+                    }
+                    catch
+                    {
+                        //File.WriteAllText(@"C:\temp\log.txt", ngs);
+                        return;
+                    }
                 }
+
+                File.WriteAllText(@"C:\temp\log.txt", nGramEntryTable.Count().ToString() + ", " +
+                                                        wordIndexTable.Count().ToString() + ", " +
+                                                        nGramTagTable.Count().ToString());
+
+                // We have the fully qualifed NGram strings so we don't need the individual words any more
+                wordIndexTable.Clear();
             }
-            return;
 
             // Final parsing to match the ngram words with the ngram tags
             // I know this looks poor but it's a lot more memory efficient and faster to do it this way
-            //int count = 0;
             //if (true)
             //{
             //    List<Models.DictionaryEntry> allDictionaryEntries = new List<Models.DictionaryEntry>();
@@ -212,6 +237,29 @@ namespace DictionaryLookup.Migrations
             //        context.SaveChanges();
             //    }
             //}
+        }
+
+        private int WordStringsFromNGramString(string nGramString, ref string w1, ref string p1, ref string p2)
+        {
+            p1 = ""; p2 = "";
+            string[] words = nGramString.Split(' ');
+            int wordCount = words.Count();
+            w1 = words[wordCount - 1];
+            if(wordCount > 1)
+            {
+                p1 = words[wordCount - 2];
+            }
+            if(wordCount > 2)
+            {
+                p2 = words[wordCount - 3];
+                // Prepend all the other words to the p2 in the case of quad-grams and above
+                for (int i = wordCount - 4; i >= 0; i--)
+                {
+                    p2 = words[i] + " " + p2;
+                }
+                return 3;
+            }
+            return wordCount;
         }
 
         private NGramTags ParseTags(string line)
