@@ -84,19 +84,20 @@ namespace DictionaryLookup.Migrations
                 context.SaveChanges();
             }
 
-            // Re-parse to find the NGrams
-            if (true)
+            // Create a hash table of all the words 
+            Dictionary<string, Int64> wordStringTable = new Dictionary<string, long>();
             {
-                // Create a hash table of all the words 
-                Dictionary<string, Int64> wordStringTable = new Dictionary<string, long>();
+                var wss = from a in context.WordStrings
+                          select a;
+                foreach (WordString ws in wss)
                 {
-                    var wss = from a in context.WordStrings
-                              select a;
-                    foreach (WordString ws in wss)
-                    {
-                        wordStringTable.Add(ws.Word, ws.WordStringID);
-                    }
+                    wordStringTable.Add(ws.Word, ws.WordStringID);
                 }
+            }
+
+            // Re-parse to find the NGrams
+            if (false)
+            {
                 List<NGramEntry> allNGrams = new List<NGramEntry>();
                 using (FileStream fs = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + @"\english_united_states.testtrie.txt"))
                 using (TextReader tr = new StreamReader(fs))
@@ -116,7 +117,6 @@ namespace DictionaryLookup.Migrations
                         }
                     }
                 }
-                //File.WriteAllText(@"C:\temp\log.txt", allNGrams.Count().ToString());
                 for (int c = 0; c < allNGrams.Count(); c += 100000)
                 {
                     int n = Math.Min(100000, allNGrams.Count() - c);
@@ -125,8 +125,65 @@ namespace DictionaryLookup.Migrations
                 }
             }
 
-            /*
-            */
+            Dictionary<Int64, Int64> nGramTagTable = new Dictionary<Int64, Int64>(); // Hash of the tags as key, table index as the value
+            {
+                var ngts = from a in context.NGramTags
+                           select a;
+                foreach (NGramTags ngt in ngts)
+                {
+                    nGramTagTable.Add(ngt.GetHash(), ngt.NGramTagsID);
+                }
+            }
+
+            // Final parsing to match the ngram words with the ngram tags
+            // I know this looks poor but it's a lot more memory efficient and faster to do it this way
+            if (true)
+            {
+                List<Models.DictionaryEntry> allDictionaryEntries = new List<Models.DictionaryEntry>();
+                using (FileStream fs = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + @"\english_united_states.testtrie.txt"))
+                using (TextReader tr = new StreamReader(fs))
+                {
+                    intermediateStates.Clear();
+                    while (tr.Peek() > -1)
+                    {
+                        string line = tr.ReadLine();
+                        NGramTags ngt = ParseTags(line);
+                        if (ngt != null)
+                        {
+                            // We now have a full ngram and can get the table index for the tags
+                            Int64 ngh = ngt.GetHash();
+                            Int64 nGramTagTableIndex = nGramTagTable[ngt.GetHash()];
+                            // Find the words, look up the word ids then find the ngram from the DB
+                            string nGramString = line.Contains("\t") ? line.Remove(line.IndexOf('\t')) : line;
+                            string[] words = nGramString.Split(' ');
+                            Int64 wid = wordStringTable[words.Last().ToString()];
+                            Int64 p1id = (words.Count() > 1) ? wordStringTable[words[words.Count() - 1].ToString()] : 0;
+                            Int64 p2id = (words.Count() > 2) ? wordStringTable[words[words.Count() - 2].ToString()] : 0;
+                            var nges = from a in context.NGramEntries
+                                        where a.WordID == wid
+                                        where a.Previous1WordID == p1id
+                                        where a.Previous2WordID == p2id
+                                        select a.NGramEntryID;
+
+                            /*
+                            File.WriteAllText(@"C:\temp\log.txt",
+                                nGramString + "\n" +
+                                wid.ToString() + ", " + p1id.ToString() + ", " + p2id.ToString() + "\n" +
+                                ngts.First().ToString() + "\n"
+                                );
+                                */
+
+                            allDictionaryEntries.Add(new Models.DictionaryEntry(nges.First(), nGramTagTableIndex));
+                        }
+                    }
+                }
+                for (int c = 0; c < allDictionaryEntries.Count(); c += 100000)
+                {
+                    int n = Math.Min(100000, allDictionaryEntries.Count() - c);
+                    context.DictionaryEntries.AddRange(allDictionaryEntries.GetRange(c, n));
+                    context.SaveChanges();
+                }
+            }
         }
 
         private NGramTags ParseTags(string line)
