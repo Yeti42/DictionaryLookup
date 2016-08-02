@@ -9,11 +9,14 @@ namespace DictionaryLookup.Models
     {
         public DictionaryEntry()
         {
-            DictionaryEntryID = 0;
-            NGramEntryID = 0;
-            NGramTagID = 0;
+            Set(0, 0);
         }
         public DictionaryEntry(Int64 ngeID, Int64 ngtID)
+        {
+            Set(ngeID, ngtID);
+        }
+
+        public void Set(Int64 ngeID, Int64 ngtID)
         {
             DictionaryEntryID = 0;
             NGramEntryID = ngeID;
