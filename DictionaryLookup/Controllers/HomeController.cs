@@ -17,6 +17,7 @@ namespace DictionaryLookup.Controllers
         // GET: Home0
         public ActionResult Index(string word, string prefix)
         {
+
             int numToReturn = 40;
             if (!String.IsNullOrEmpty(word))
                 word = word.Trim();

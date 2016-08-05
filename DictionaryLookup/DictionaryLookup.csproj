@@ -179,15 +179,16 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\DictionaryEntriesController.cs" />
     <Compile Include="Controllers\DictionaryReportsController.cs" />
     <Compile Include="Controllers\ErrorTypesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LanguagesController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\NGramEntriesController.cs" />
+    <Compile Include="Controllers\NGramStringsController.cs" />
     <Compile Include="Controllers\NGramTagsController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
+    <Compile Include="Controllers\VersionedDictionariesController.cs" />
     <Compile Include="Controllers\WordStringsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -228,10 +229,21 @@
     <Compile Include="Migrations\201607300529146_Initial8.Designer.cs">
       <DependentUpon>201607300529146_Initial8.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201608030045595_Initial9.cs" />
+    <Compile Include="Migrations\201608030045595_Initial9.Designer.cs">
+      <DependentUpon>201608030045595_Initial9.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201608030646415_Initial10.cs" />
+    <Compile Include="Migrations\201608030646415_Initial10.Designer.cs">
+      <DependentUpon>201608030646415_Initial10.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201608052124525_Initial11.cs" />
+    <Compile Include="Migrations\201608052124525_Initial11.Designer.cs">
+      <DependentUpon>201608052124525_Initial11.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\DetailsViewModels.cs" />
-    <Compile Include="Models\DictionaryEntry.cs" />
     <Compile Include="Models\DictionaryLookupContext.cs" />
     <Compile Include="Models\DictionaryReport.cs" />
     <Compile Include="Models\DictionaryWord.cs" />
@@ -240,8 +252,11 @@
     <Compile Include="Models\Languages.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\NGramEntry.cs" />
+    <Compile Include="Models\NGramString.cs" />
     <Compile Include="Models\NGramTags.cs" />
+    <Compile Include="Models\TestTrieReader.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Models\VersionedDictionary.cs" />
     <Compile Include="Models\WordString.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -253,6 +268,7 @@
     <Content Include="english_united_states.testtrie.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="fake.testtrie.txt" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -310,17 +326,15 @@
     <Content Include="Views\Home\Details.cshtml" />
     <Content Include="Views\DictionaryReports\Details.cshtml" />
     <Content Include="Views\DictionaryReports\Index.cshtml" />
-    <Content Include="Views\DictionaryEntries\Create.cshtml" />
-    <Content Include="Views\DictionaryEntries\Delete.cshtml" />
-    <Content Include="Views\DictionaryEntries\Details.cshtml" />
-    <Content Include="Views\DictionaryEntries\Edit.cshtml" />
-    <Content Include="Views\DictionaryEntries\Index.cshtml" />
+    <Content Include="Views\Home\Upload.cshtml" />
+    <Content Include="Views\VersionedDictionaries\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Views\ErrorTypes\" />
     <Folder Include="Views\Languages\" />
     <Folder Include="Views\NGramEntries\" />
+    <Folder Include="Views\NGramStrings\" />
     <Folder Include="Views\NGramTags\" />
     <Folder Include="Views\Users\" />
     <Folder Include="Views\WordStrings\" />
@@ -360,6 +374,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201607300529146_Initial8.resx">
       <DependentUpon>201607300529146_Initial8.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608030045595_Initial9.resx">
+      <DependentUpon>201608030045595_Initial9.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608030646415_Initial10.resx">
+      <DependentUpon>201608030646415_Initial10.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608052124525_Initial11.resx">
+      <DependentUpon>201608052124525_Initial11.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

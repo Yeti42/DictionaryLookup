@@ -9,18 +9,18 @@ namespace DictionaryLookup.Models
     {
         public NGramTags()
         {
-            Restricted = false;
-            SpellerFrequency = 0;
-            TextPredictionCost = 0;
-            TextPredictionBackOffCost = 0;
-            TextPredictionBadWord = false;
-            HWRCost = 4091;
-            HWRCalligraphyCost = 0;
+            Set(false, 0, 0, 0, false, 4091, 0);
         }
         public NGramTags(bool restricted, Int16 frequency, Int16 stopCost, Int16 backoffCost, bool badWord, Int16 hwrCost, Int16 hwrCallig)
         {
             Set(restricted, frequency, stopCost, backoffCost, badWord, hwrCost, hwrCallig);
         }
+
+        public NGramTags(Int64 tagHash)
+        {
+            SetHash(tagHash);
+        }
+
 
         public NGramTags(string tagString, Int16 stopCost, Int16 backoffCost, bool badWord)
         {
@@ -49,13 +49,19 @@ namespace DictionaryLookup.Models
 
         public Int64  GetHash()
         {
-            return (Int64)(Restricted ? 1 : 0) +               // 1 bit
-                   (Int64)(SpellerFrequency * 2) +             // 2 bits
-                   (Int64)(TextPredictionCost * (2 ^ 3)) +           // 8 bits
-                   (Int64)(TextPredictionBackOffCost * (2 ^ 11)) + // 8 bits
-                   (Int64)((TextPredictionBadWord ? (2 ^ 19) : 0)) +     // 1 bit
-                   (Int64)(HWRCost * (2 ^ 20)) +                   // 14 bits
-                   (Int64)(HWRCalligraphyCost * (2 ^ 34));         // 2 bits
+            return hashValue;
+        }
+
+        public void SetHash(Int64 tagHash)
+        {
+            hashValue = tagHash;
+            Restricted = (tagHash & 1) == 1;
+            SpellerFrequency = (Int16)((tagHash >> 1) & 0x3);
+            TextPredictionCost = (Byte)((tagHash >> 3) & 0xFF);
+            TextPredictionBackOffCost = (Byte)((tagHash >> 11) & 0xFF);
+            TextPredictionBadWord = ((tagHash >> 19) & 1) == 1;
+            HWRCost = (Int16)((tagHash >> 20) & 0xFFFF);
+            HWRCalligraphyCost = (Int16)((tagHash >> 36) & 0x3);
         }
 
         public void Set(bool restricted, Int16 frequency, Int16 stopCost, Int16 backoffCost, bool badWord, Int16 hwrCost, Int16 hwrCallig)
@@ -67,6 +73,13 @@ namespace DictionaryLookup.Models
             TextPredictionBadWord = badWord;
             HWRCost = hwrCost;
             HWRCalligraphyCost = hwrCallig;
+            hashValue =  (Int64)(Restricted ? 1 : 0);               // 1 bit
+            hashValue += (Int64)(SpellerFrequency) * 2;             // 2 bits
+            hashValue += (Int64)(TextPredictionCost) * 0x0008;           // 8 bits
+            hashValue += (Int64)(TextPredictionBackOffCost) * 0x0800; // 8 bits
+            hashValue += (Int64)((TextPredictionBadWord) ? 0x80000 : 0);     // 1 bit
+            hashValue += (Int64)(HWRCost) * 0x100000;                   // 16 bits
+            hashValue += (Int64)(HWRCalligraphyCost) * 0x1000000000;         // 2 bits
         }
         
         public Int64 NGramTagsID { get; set; }
@@ -83,5 +96,7 @@ namespace DictionaryLookup.Models
         // Tag 5
         public Int16 HWRCost { get; set; }
         public Int16 HWRCalligraphyCost { get; set; }
+
+        private Int64 hashValue;
     }
 }
