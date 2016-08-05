@@ -18,20 +18,16 @@ namespace DictionaryLookup.Models
         public DictionaryLookupContext() : base("name=DictionaryLookupContext")
         {
         }
-
-        public System.Data.Entity.DbSet<DictionaryLookup.Models.DictionaryWord> DictionaryWords { get; set; }
-
+        
         public System.Data.Entity.DbSet<DictionaryLookup.Models.Languages> Languages { get; set; }
 
-        public System.Data.Entity.DbSet<DictionaryLookup.Models.DictionaryReport> DictionaryReports { get; set; }
+        public System.Data.Entity.DbSet<DictionaryLookup.Models.DictionaryErrorReport> DictionaryErrorReports { get; set; }
 
         public System.Data.Entity.DbSet<DictionaryLookup.Models.User> Users { get; set; }
 
         public System.Data.Entity.DbSet<DictionaryLookup.Models.ErrorType> ErrorTypes { get; set; }
 
         public System.Data.Entity.DbSet<DictionaryLookup.Models.WordString> WordStrings { get; set; }
-
-        public System.Data.Entity.DbSet<DictionaryLookup.Models.NGramEntry> NGramEntries { get; set; }
 
         public System.Data.Entity.DbSet<DictionaryLookup.Models.NGramTags> NGramTags { get; set; }
 

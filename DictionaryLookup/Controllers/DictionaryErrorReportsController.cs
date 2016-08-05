@@ -10,21 +10,21 @@ using DictionaryLookup.Models;
 
 namespace DictionaryLookup.Controllers
 {
-    public class DictionaryReportsController : Controller
+    public class DictionaryErrorReportsController : Controller
     {
         private DictionaryLookupContext db = new DictionaryLookupContext();
 
-        // GET: DictionaryReports
+        // GET: DictionaryErrorReports
         public ActionResult Index()
         {
-            return View(db.DictionaryReports.ToList());
+            return View(db.DictionaryErrorReports.ToList());
         }
 
-        // GET: DictionaryReports/Details/5
+        // GET: DictionaryErrorReports/Details/5
         public ActionResult Details(Int32 id)
         {
-            var errorReport = from r1 in db.DictionaryReports
-                              where r1.DictionaryReportId == id
+            var errorReport = from r1 in db.DictionaryErrorReports
+                              where r1.DictionaryErrorReportId == id
                               join e1 in db.ErrorTypes on r1.ErrorTypeID equals e1.ErrorTypeID
                               join u1 in db.Users on r1.UserID equals u1.UserID
                               join l1 in db.Languages on r1.LanguageID equals l1.LanguagesID

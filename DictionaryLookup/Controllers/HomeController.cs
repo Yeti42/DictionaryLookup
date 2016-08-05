@@ -73,10 +73,10 @@ namespace DictionaryLookup.Controllers
                         
         public ActionResult ReportError(Int64 wordid, Int16 errorid)
         {
-            DictionaryReport dr = new DictionaryReport(wordid, errorid, 1, "");
-            db.DictionaryReports.Add(dr);
+            DictionaryErrorReport dr = new DictionaryErrorReport(wordid, errorid, 1, "");
+            db.DictionaryErrorReports.Add(dr);
             db.SaveChanges();
-            return RedirectToAction("Details", "DictionaryReports", new { id = dr.DictionaryReportId });
+            return RedirectToAction("Details", "DictionaryErrorReports", new { id = dr.DictionaryErrorReportId });
         }
 
         protected override void Dispose(bool disposing)

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<DictionaryLookup.Models.DictionaryReport>
+﻿@model IEnumerable<DictionaryLookup.Models.DictionaryErrorReport>
 
 @{
     ViewBag.Title = "Error Reports";
@@ -56,7 +56,7 @@
             @Html.DisplayFor(modelItem => item.Notes)
         </td>
         <td>
-            @Html.ActionLink("Details", "Details", new { id=item.DictionaryReportId })
+            @Html.ActionLink("Details", "Details", new { id=item.DictionaryErrorReportId })
         </td>
     </tr>
 }

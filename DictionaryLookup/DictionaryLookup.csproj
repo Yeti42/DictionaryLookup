@@ -179,12 +179,11 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\DictionaryReportsController.cs" />
+    <Compile Include="Controllers\DictionaryErrorReportsController.cs" />
     <Compile Include="Controllers\ErrorTypesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LanguagesController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
-    <Compile Include="Controllers\NGramEntriesController.cs" />
     <Compile Include="Controllers\NGramStringsController.cs" />
     <Compile Include="Controllers\NGramTagsController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
@@ -193,68 +192,16 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201607201707099_Initial.cs" />
-    <Compile Include="Migrations\201607201707099_Initial.Designer.cs">
-      <DependentUpon>201607201707099_Initial.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201607222200127_Initial1.cs" />
-    <Compile Include="Migrations\201607222200127_Initial1.Designer.cs">
-      <DependentUpon>201607222200127_Initial1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201607252324338_Initial2.cs" />
-    <Compile Include="Migrations\201607252324338_Initial2.Designer.cs">
-      <DependentUpon>201607252324338_Initial2.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201607252326346_Initial3.cs" />
-    <Compile Include="Migrations\201607252326346_Initial3.Designer.cs">
-      <DependentUpon>201607252326346_Initial3.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201607252336383_Initial4.cs" />
-    <Compile Include="Migrations\201607252336383_Initial4.Designer.cs">
-      <DependentUpon>201607252336383_Initial4.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201607252338038_Initial5.cs" />
-    <Compile Include="Migrations\201607252338038_Initial5.Designer.cs">
-      <DependentUpon>201607252338038_Initial5.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201607280226073_Initial6.cs" />
-    <Compile Include="Migrations\201607280226073_Initial6.Designer.cs">
-      <DependentUpon>201607280226073_Initial6.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201607292247349_Initial7.cs" />
-    <Compile Include="Migrations\201607292247349_Initial7.Designer.cs">
-      <DependentUpon>201607292247349_Initial7.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201607300529146_Initial8.cs" />
-    <Compile Include="Migrations\201607300529146_Initial8.Designer.cs">
-      <DependentUpon>201607300529146_Initial8.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201608030045595_Initial9.cs" />
-    <Compile Include="Migrations\201608030045595_Initial9.Designer.cs">
-      <DependentUpon>201608030045595_Initial9.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201608030646415_Initial10.cs" />
-    <Compile Include="Migrations\201608030646415_Initial10.Designer.cs">
-      <DependentUpon>201608030646415_Initial10.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201608052124525_Initial11.cs" />
-    <Compile Include="Migrations\201608052124525_Initial11.Designer.cs">
-      <DependentUpon>201608052124525_Initial11.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
-    <Compile Include="Models\DetailsViewModels.cs" />
     <Compile Include="Models\DictionaryLookupContext.cs" />
-    <Compile Include="Models\DictionaryReport.cs" />
-    <Compile Include="Models\DictionaryWord.cs" />
+    <Compile Include="Models\DictionaryErrorReport.cs" />
     <Compile Include="Models\ErrorType.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\Languages.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
-    <Compile Include="Models\NGramEntry.cs" />
     <Compile Include="Models\NGramString.cs" />
     <Compile Include="Models\NGramTags.cs" />
-    <Compile Include="Models\TestTrieReader.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\VersionedDictionary.cs" />
     <Compile Include="Models\WordString.cs" />
@@ -333,7 +280,6 @@
     <Folder Include="App_Data\" />
     <Folder Include="Views\ErrorTypes\" />
     <Folder Include="Views\Languages\" />
-    <Folder Include="Views\NGramEntries\" />
     <Folder Include="Views\NGramStrings\" />
     <Folder Include="Views\NGramTags\" />
     <Folder Include="Views\Users\" />
@@ -346,44 +292,6 @@
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201607201707099_Initial.resx">
-      <DependentUpon>201607201707099_Initial.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201607222200127_Initial1.resx">
-      <DependentUpon>201607222200127_Initial1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201607252324338_Initial2.resx">
-      <DependentUpon>201607252324338_Initial2.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201607252326346_Initial3.resx">
-      <DependentUpon>201607252326346_Initial3.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201607252336383_Initial4.resx">
-      <DependentUpon>201607252336383_Initial4.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201607252338038_Initial5.resx">
-      <DependentUpon>201607252338038_Initial5.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201607280226073_Initial6.resx">
-      <DependentUpon>201607280226073_Initial6.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201607292247349_Initial7.resx">
-      <DependentUpon>201607292247349_Initial7.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201607300529146_Initial8.resx">
-      <DependentUpon>201607300529146_Initial8.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201608030045595_Initial9.resx">
-      <DependentUpon>201608030045595_Initial9.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201608030646415_Initial10.resx">
-      <DependentUpon>201608030646415_Initial10.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201608052124525_Initial11.resx">
-      <DependentUpon>201608052124525_Initial11.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
