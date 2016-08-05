@@ -22,6 +22,7 @@ namespace DictionaryLookup.Migrations
             // Languages
             // Error Types
             // VersionedDictionaries
+            // WordStrings. First entry ""
 
             return;
         }

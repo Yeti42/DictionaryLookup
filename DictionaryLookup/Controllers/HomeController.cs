@@ -17,8 +17,8 @@ namespace DictionaryLookup.Controllers
         // GET: Home0
         public ActionResult Index(string word, string prefix)
         {
-
             int numToReturn = 40;
+            /*
             if (!String.IsNullOrEmpty(word))
                 word = word.Trim();
             if (!string.IsNullOrEmpty(prefix))
@@ -49,12 +49,14 @@ namespace DictionaryLookup.Controllers
                                 " ORDER BY NGram, TextPredictionCost, Word";
                 return View(db.DictionaryWords.SqlQuery(sqlcmd, prefix).ToList());
             }
-            return View(db.DictionaryWords.SqlQuery("SELECT top 40 * FROM DictionaryWords ORDER BY NGram, TextPredictionCost, Word").ToList());
+            */
+            return View(db.WordStrings.SqlQuery("SELECT top " + numToReturn.ToString() + " FROM WordStrings ORDER BY WordString").ToList());
 
             //return View(words);
 
         }
 
+        /*
         // GET: Home/Details/5
         public ActionResult Details(int? id)
         {
@@ -70,6 +72,7 @@ namespace DictionaryLookup.Controllers
 
             return View(dictionaryWord);
         }
+        */
                         
         public ActionResult ReportError(Int64 wordid, Int16 errorid)
         {
