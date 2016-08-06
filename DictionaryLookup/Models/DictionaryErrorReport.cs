@@ -33,7 +33,7 @@ namespace DictionaryLookup.Models
         public Int64 NGramStringID { get; set; }
         public Int64 NGramTagID { get; set; } 
         public DateTime ReportDateTime { get; set; }
-        public Int16 ErrorTypeID { get; set; } // key to the errortype table
+        public int ErrorTypeID { get; set; } // key to the errortype table
         public Int32 UserID { get; set; } // key to the user table
         public string Notes { get; set; }
     }
