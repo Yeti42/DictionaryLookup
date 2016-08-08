@@ -34,5 +34,7 @@ namespace DictionaryLookup.Models
         public System.Data.Entity.DbSet<DictionaryLookup.Models.VersionedDictionary> VersionedDictionaries { get; set; }
 
         public System.Data.Entity.DbSet<DictionaryLookup.Models.NGramString> NGramStrings { get; set; }
+
+        public System.Data.Entity.DbSet<DictionaryLookup.Models.NGramEntry> NGramEntries { get; set; }
     }
 }

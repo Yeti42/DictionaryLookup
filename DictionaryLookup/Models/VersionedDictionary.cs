@@ -11,17 +11,17 @@ namespace DictionaryLookup.Models
         {
             Set(0, "");
         }
-        public VersionedDictionary(int langID, string verName)
+        public VersionedDictionary(Int16 langID, string verName)
         {
             Set(langID, verName);
         }
-        private void Set(int langID, string verName)
+        private void Set(Int16 langID, string verName)
         {
             LanguageID = langID;
             VersionName = verName;
         }
-        public int VersionedDictionaryID { get; set; }
-        public int LanguageID { get; set; }
+        public Int32 VersionedDictionaryID { get; set; }
+        public Int16 LanguageID { get; set; }
         public string VersionName { get; set; }
     }
 }

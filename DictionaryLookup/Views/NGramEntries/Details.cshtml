@@ -1,0 +1,43 @@
+﻿@model DictionaryLookup.Models.NGramEntry
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Home/About.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>NGramEntry</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.NGramStringID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.NGramStringID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.NGramTagsID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.NGramTagsID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.VersionedDictionaryID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.VersionedDictionaryID)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.NGramEntryID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

@@ -1,0 +1,46 @@
+﻿@model IEnumerable<DictionaryLookup.Models.NGramEntry>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Home/About.cshtml";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.NGramStringID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.NGramTagsID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.VersionedDictionaryID)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.NGramStringID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.NGramTagsID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.VersionedDictionaryID)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.NGramEntryID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.NGramEntryID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.NGramEntryID })
+        </td>
+    </tr>
+}
+
+</table>
