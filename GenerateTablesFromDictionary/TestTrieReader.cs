@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.IO;
-using System.Collections;
 
 namespace GenerateTablesFromDictionary
 {
-    public class TestTrieReader
+    public class TestTrieReader : IDisposable
     {
         public TestTrieReader(string inputFilename)
         {
@@ -24,8 +22,8 @@ namespace GenerateTablesFromDictionary
                 if (ngt != null)
                 {
                     nGramString = line.Contains("\t") ? line.Remove(line.IndexOf('\t')) : line;
-                    nGramTags.SetHash(ngt.GetHash());
-                    WordStringsFromNGramString(nGramString);
+                    nGramTags.Set(ngt.GetHash());
+                    NGram = WordStringsFromNGramString(nGramString);
                     return true;
                 }
             }
@@ -80,7 +78,7 @@ namespace GenerateTablesFromDictionary
             return null;
         }
 
-        private void WordStringsFromNGramString(string nGramString)
+        private int WordStringsFromNGramString(string nGramString)
         {
             w[1] = ""; w[2] = "";
             string[] words = nGramString.Split(' ');
@@ -98,9 +96,35 @@ namespace GenerateTablesFromDictionary
                 {
                     w[2] = words[i] + " " + w[2];
                 }
-                NGram = 3;
+                return 3;
             }
-            NGram = wordCount;
+            return wordCount;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                // Free any other managed objects here.
+                //
+                fs.Dispose();
+                tr.Dispose();
+                intermediateStates = null;
+                w = null;
+                nGramTags = null;
+            }
+
+            // Free any unmanaged objects here.
+            //
+            disposed = true;
         }
 
         struct IntermediateTags
@@ -119,5 +143,6 @@ namespace GenerateTablesFromDictionary
         public string nGramString;
         public string[] w = new string[3];
         public int NGram;
+        bool disposed = false;
     }
 }

@@ -18,7 +18,7 @@ namespace GenerateTablesFromDictionary
 
         public NGramTags(Int64 tagHash)
         {
-            SetHash(tagHash);
+            Set(tagHash);
         }
 
         public NGramTags(string tagString, Int16 stopCost, Int16 backoffCost, bool badWord)
@@ -51,7 +51,7 @@ namespace GenerateTablesFromDictionary
             return hashValue;
         }
 
-        public void SetHash(Int64 tagHash)
+        public void Set(Int64 tagHash)
         {
             hashValue = tagHash;
             Restricted = (tagHash & 1) == 1;
@@ -79,6 +79,18 @@ namespace GenerateTablesFromDictionary
             hashValue += (Int64)((TextPredictionBadWord) ? 0x80000 : 0);     // 1 bit
             hashValue += (Int64)(HWRCost) * 0x100000;                   // 16 bits
             hashValue += (Int64)(HWRCalligraphyCost) * 0x1000000000;         // 2 bits
+        }
+
+        public bool Equals(ref NGramTags ngt)
+        {
+            return ((ngt.HWRCalligraphyCost == HWRCalligraphyCost) &&
+                        (ngt.HWRCost == HWRCost) &&
+                        (ngt.Restricted == Restricted) &&
+                        (ngt.SpellerFrequency == SpellerFrequency) &&
+                        (ngt.TextPredictionBackOffCost == TextPredictionBackOffCost) &&
+                        (ngt.TextPredictionBadWord == TextPredictionBadWord) &&
+                        (ngt.TextPredictionCost == TextPredictionCost) &&
+                        (ngt.GetHash() == GetHash()));
         }
 
         public Int64 NGramTagsID { get; set; }
