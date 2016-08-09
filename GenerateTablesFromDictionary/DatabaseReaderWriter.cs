@@ -11,11 +11,20 @@ namespace GenerateTablesFromDictionary
 {
     class DatabaseReaderWriter
     {
-        public void ParseTestTrieFile(string filename, Int32 versionID)
+        private static bool overwriteDBFiles = false;
+        private static string bcpProgram = "C:\\Program Files (x86)\\Microsoft SQL Server\\Client SDK\\ODBC\\130\\Tools\\Binn\\bcp.exe";
+        private static string opdir = "C:\\temp\\";
+
+        public void ParseTestTrieFile(string filename, Int32 versionID, string pwdarg)
         {
-            GetCurrentWordStrings(false);
-            GetCurrentNGramTags(false);
-            GetCurrentNGrams(false);
+            pwd = pwdarg;
+            if (versionID == 0)
+            {
+                GetNextVersionDictionaryID();
+            }
+            GetCurrentWordStrings();
+            GetCurrentNGramTags();
+            GetCurrentNGrams();
 
             HashSet<string> newWordStrings = new HashSet<string>();
             HashSet<Int64> newNGramTags = new HashSet<long>();
@@ -34,30 +43,37 @@ namespace GenerateTablesFromDictionary
             SetNewWordStrings(ref newWordStrings);
             SetNewNGramTags(ref newNGramTags);
             SetNewNGrams(ref newNGrams);
-            using (TestTrieReader ttr = new TestTrieReader(filename))
-            using (FileStream fs = File.Create("C:\\temp\\NGramEntries.New.txt"))
-            using (TextWriter tw = new StreamWriter(fs))
-            {
-                Int64 ngeID = 0;
-                while (ttr.Next())
-                {
-                    ngeID++;
-                    Int64 ngid = existingNGrams[ttr.nGramString];
-                    Int64 tgid = existingTags[ttr.nGramTags.GetHash()];
-                    tw.WriteLine("{0}\t{1}\t{2}\t{3}", ngeID.ToString(), ngid.ToString(), tgid.ToString(), versionID);
-                }
-            }
+            SetNewNGramEntries(filename, versionID);
         }
 
-        private void GetCurrentWordStrings(bool downloadTable = true)
+        private string RunBCP(string tableName, string query = "")
         {
-            if (downloadTable)
+            string filename = String.Concat(opdir, tableName, ".txt");
+            if (overwriteDBFiles || !File.Exists(filename))
             {
-                Process p = Process.Start(bcpProgram, "\"select * from WordStrings\" queryout C:\\temp\\WordStrings.txt -Sosgdictionaries.database.windows.net -Utpg -c -dDictionaries");
+                StringBuilder args = new StringBuilder();
+                if (query.Length > 0)
+                {
+                    args.AppendFormat("\"{0}\"", query);
+                }
+                else
+                {
+                    args.AppendFormat("\"select * from {0}\"", tableName);
+                }
+                args.AppendFormat(" queryout {0} -Sosgdictionaries.database.windows.net -Utpg -c -dDictionaries", filename);
+                if(pwd.Length > 0)
+                {
+                    args.AppendFormat(" -P \"{0}\"", pwd);
+                }
+                Process p = Process.Start(bcpProgram, args.ToString());
                 p.WaitForExit();
             }
-            
-            using (FileStream fs = File.OpenRead("C:\\temp\\WordStrings.txt"))
+            return filename;
+        }
+
+        private void GetCurrentWordStrings()
+        {
+            using (FileStream fs = File.OpenRead(RunBCP("WordStrings")))
             using (TextReader tr = new StreamReader(fs))
             {
                 while (tr.Peek() > -1)
@@ -71,16 +87,10 @@ namespace GenerateTablesFromDictionary
                 }
             }
         }
-        private void GetCurrentNGramTags(bool downloadTable = true)
+        private void GetCurrentNGramTags()
         {
-            if (downloadTable)
-            {
-                Process p = Process.Start(bcpProgram, "\"select * from NGramTags\" queryout C:\\temp\\NGramTags.txt -Sosgdictionaries.database.windows.net -Utpg -c -dDictionaries");
-                p.WaitForExit();
-            }
-
             NGramTags ngt = new NGramTags();
-            using (FileStream fs = File.OpenRead("C:\\temp\\NGramTags.txt"))
+            using (FileStream fs = File.OpenRead(RunBCP("NGramTags")))
             using (TextReader tr = new StreamReader(fs))
             {
                 while (tr.Peek() > -1)
@@ -95,14 +105,9 @@ namespace GenerateTablesFromDictionary
             }
         }
 
-        private void GetCurrentNGrams(bool downloadTable = true)
+        private void GetCurrentNGrams()
         {
-            if (downloadTable)
-            {
-                Process p = Process.Start(bcpProgram, "\"select * from NGramStrings\" queryout C:\\temp\\NGramStrings.txt -Sosgdictionaries.database.windows.net -Utpg -c -dDictionaries");
-                p.WaitForExit();
-            }
-            using (FileStream fs = File.OpenRead("C:\\temp\\NGramStrings.txt"))
+            using (FileStream fs = File.OpenRead(RunBCP("NGramStrings")))
             using (TextReader tr = new StreamReader(fs))
             {
                 while (tr.Peek() > -1)
@@ -188,8 +193,39 @@ namespace GenerateTablesFromDictionary
             }
         }
 
+        private void SetNewNGramEntries(string filename, Int32 versionID)
+        {
+            using (FileStream fs = File.OpenRead(RunBCP("NGramEntries", "select top 1 NGramEntryID from NGramEntries order by NGramEntryID desc")))
+            using (TextReader tr = new StreamReader(fs))
+            {
+                maxNGramsEntriesID = Int32.Parse(tr.ReadLine());
+            }
 
-        private string bcpProgram = "C:\\Program Files (x86)\\Microsoft SQL Server\\Client SDK\\ODBC\\130\\Tools\\Binn\\bcp.exe";
+            using (TestTrieReader ttr = new TestTrieReader(filename))
+            using (FileStream fs = File.Create("C:\\temp\\NGramEntries.New.txt"))
+            using (TextWriter tw = new StreamWriter(fs))
+            {
+                Int64 ngeID = 0;
+                while (ttr.Next())
+                {
+                    ngeID++;
+                    Int64 ngid = existingNGrams[ttr.nGramString];
+                    Int64 tgid = existingTags[ttr.nGramTags.GetHash()];
+                    tw.WriteLine("{0}\t{1}\t{2}\t{3}", ngeID.ToString(), ngid.ToString(), tgid.ToString(), versionID);
+                }
+            }
+        }
+
+        private Int32 GetNextVersionDictionaryID()
+        {
+            Int32 retval = 1;
+            using (FileStream fs = File.OpenRead(RunBCP("VersionedDictionary", "select top 1 VersionedDictionaryID from VersionedDictionaries order by VersionedDictionaryID desc")))
+            using (TextReader tr = new StreamReader(fs))
+            {
+                retval = Int32.Parse(tr.ReadLine()) + 1;
+            }
+            return retval;
+        }
 
         private Dictionary<string, Int64> existingWords = new Dictionary<string, Int64>();
         //private Dictionary<string, Int64> newWords = new Dictionary<string, Int64>();
@@ -201,5 +237,8 @@ namespace GenerateTablesFromDictionary
         private Int64 maxWordStringsID = 0;
         private Int64 maxNGramTagsID = 0;
         private Int64 maxNGramsID = 0;
+        private Int64 maxNGramsEntriesID = 0;
+
+        private string pwd = "";
     }
 }

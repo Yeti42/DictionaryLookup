@@ -12,9 +12,44 @@ namespace GenerateTablesFromDictionary
     {
         static void Main(string[] args)
         {
-            DatabaseReaderWriter dbrw = new DatabaseReaderWriter();
+            Int32 verID = 0;
+            string pwd = "";
+            string filename = "";
 
-            dbrw.ParseTestTrieFile(args[0], 1);
+
+            for (int i = 0; i < args.Length; i++)
+            {
+                if ((args[i][0] == '-') || (args[i][0] == '/'))
+                {
+                    switch (args[i][1])
+                    {
+                        case 'v':
+                            verID = Int32.Parse(args[++i]);
+                            break;
+                        case 'p':
+                            pwd = args[++i];
+                            break;
+                    }
+                }
+                else
+                {
+                    filename = args[i];
+                }
+            }
+
+            if(filename.Length == 0)
+            {
+                return;
+            }
+
+            if(pwd.Length == 0)
+            {
+                Console.Write("Database Password: ");
+                pwd = Console.ReadLine();
+            }
+
+            DatabaseReaderWriter dbrw = new DatabaseReaderWriter();
+            dbrw.ParseTestTrieFile(args[0], verID, pwd);
 
         }
     }
