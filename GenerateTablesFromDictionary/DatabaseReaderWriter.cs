@@ -11,7 +11,45 @@ namespace GenerateTablesFromDictionary
 {
     class DatabaseReaderWriter
     {
-        public void GetCurrentWordStrings(bool downloadTable = true)
+        public void ParseTestTrieFile(string filename, Int32 versionID)
+        {
+            GetCurrentWordStrings(false);
+            GetCurrentNGramTags(false);
+            GetCurrentNGrams(false);
+
+            HashSet<string> newWordStrings = new HashSet<string>();
+            HashSet<Int64> newNGramTags = new HashSet<long>();
+            HashSet<string> newNGrams = new HashSet<string>();
+            using (TestTrieReader ttr = new TestTrieReader(filename))
+            {
+                while (ttr.Next())
+                {
+                    if (!existingWords.ContainsKey(ttr.w[0]) && !newWordStrings.Contains(ttr.w[0])) newWordStrings.Add(ttr.w[0]);
+                    if (!existingWords.ContainsKey(ttr.w[1]) && !newWordStrings.Contains(ttr.w[1])) newWordStrings.Add(ttr.w[1]);
+                    if (!existingWords.ContainsKey(ttr.w[2]) && !newWordStrings.Contains(ttr.w[2])) newWordStrings.Add(ttr.w[2]);
+                    if (!existingTags.ContainsKey(ttr.nGramTags.GetHash()) && !newNGramTags.Contains(ttr.nGramTags.GetHash())) newNGramTags.Add(ttr.nGramTags.GetHash());
+                    if (!existingNGrams.ContainsKey(ttr.nGramString) && !newNGrams.Contains(ttr.nGramString)) newNGrams.Add(ttr.nGramString);
+                }
+            }
+            SetNewWordStrings(ref newWordStrings);
+            SetNewNGramTags(ref newNGramTags);
+            SetNewNGrams(ref newNGrams);
+            using (TestTrieReader ttr = new TestTrieReader(filename))
+            using (FileStream fs = File.Create("C:\\temp\\NGramEntries.New.txt"))
+            using (TextWriter tw = new StreamWriter(fs))
+            {
+                Int64 ngeID = 0;
+                while (ttr.Next())
+                {
+                    ngeID++;
+                    Int64 ngid = existingNGrams[ttr.nGramString];
+                    Int64 tgid = existingTags[ttr.nGramTags.GetHash()];
+                    tw.WriteLine("{0}\t{1}\t{2}\t{3}", ngeID.ToString(), ngid.ToString(), tgid.ToString(), versionID);
+                }
+            }
+        }
+
+        private void GetCurrentWordStrings(bool downloadTable = true)
         {
             if (downloadTable)
             {
@@ -33,7 +71,7 @@ namespace GenerateTablesFromDictionary
                 }
             }
         }
-        public void GetCurrentNGramTags(bool downloadTable = true)
+        private void GetCurrentNGramTags(bool downloadTable = true)
         {
             if (downloadTable)
             {
@@ -57,7 +95,7 @@ namespace GenerateTablesFromDictionary
             }
         }
 
-        public void GetCurrentNGrams(bool downloadTable = true)
+        private void GetCurrentNGrams(bool downloadTable = true)
         {
             if (downloadTable)
             {
@@ -78,7 +116,7 @@ namespace GenerateTablesFromDictionary
             }
         }
 
-        public void SetNewWordStrings(ref HashSet<string> newWordStrings)
+        private void SetNewWordStrings(ref HashSet<string> newWordStrings)
         {
             using (FileStream fs = File.Create("C:\\temp\\WordStrings.New.txt"))
             using (TextWriter tw = new StreamWriter(fs))
@@ -92,7 +130,7 @@ namespace GenerateTablesFromDictionary
             }
         }
 
-        public void SetNewNGramTags(ref HashSet<Int64> newNGramTags)
+        private void SetNewNGramTags(ref HashSet<Int64> newNGramTags)
         {
             using (FileStream fs = File.Create("C:\\temp\\NGramTags.New.txt"))
             using (TextWriter tw = new StreamWriter(fs))
@@ -115,7 +153,7 @@ namespace GenerateTablesFromDictionary
                 }
             }
         }
-        public void SetNewNGrams(ref HashSet<string> newNGrams)
+        private void SetNewNGrams(ref HashSet<string> newNGrams)
         {
             using (FileStream fs = File.Create("C:\\temp\\NGramStrings.New.txt"))
             using (TextWriter tw = new StreamWriter(fs))
@@ -153,15 +191,15 @@ namespace GenerateTablesFromDictionary
 
         private string bcpProgram = "C:\\Program Files (x86)\\Microsoft SQL Server\\Client SDK\\ODBC\\130\\Tools\\Binn\\bcp.exe";
 
-        public Dictionary<string, Int64> existingWords = new Dictionary<string, Int64>();
+        private Dictionary<string, Int64> existingWords = new Dictionary<string, Int64>();
         //private Dictionary<string, Int64> newWords = new Dictionary<string, Int64>();
-        public Dictionary<Int64, Int64> existingTags = new Dictionary<Int64, Int64>();
+        private Dictionary<Int64, Int64> existingTags = new Dictionary<Int64, Int64>();
         //private Dictionary<Int64, Int64> newTags = new Dictionary<Int64, Int64>();
-        public Dictionary<string, Int64> existingNGrams = new Dictionary<string, Int64>();
+        private Dictionary<string, Int64> existingNGrams = new Dictionary<string, Int64>();
         //private Dictionary<string, Int64> newNGrams = new Dictionary<string, Int64>();
 
-        public Int64 maxWordStringsID = 0;
-        public Int64 maxNGramTagsID = 0;
-        public Int64 maxNGramsID = 0;
+        private Int64 maxWordStringsID = 0;
+        private Int64 maxNGramTagsID = 0;
+        private Int64 maxNGramsID = 0;
     }
 }
