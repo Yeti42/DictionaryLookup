@@ -15,6 +15,8 @@ namespace GenerateTablesFromDictionary
             Int32 verID = 0;
             string pwd = "";
             string filename = "";
+            string verName = "";
+            string languageName = "en-US";
 
 
             for (int i = 0; i < args.Length; i++)
@@ -29,6 +31,12 @@ namespace GenerateTablesFromDictionary
                         case 'p':
                             pwd = args[++i];
                             break;
+                        case 'l':
+                            languageName = args[++i];
+                            break;
+                        case 'n':
+                            verName = args[++i];
+                            break;
                     }
                 }
                 else
@@ -42,15 +50,8 @@ namespace GenerateTablesFromDictionary
                 return;
             }
 
-            if(pwd.Length == 0)
-            {
-                Console.Write("Database Password: ");
-                pwd = Console.ReadLine();
-            }
-
             DatabaseReaderWriter dbrw = new DatabaseReaderWriter();
-            dbrw.ParseTestTrieFile(args[0], verID, pwd);
-
+            dbrw.ParseTestTrieFile(args[0], verID, verName, languageName);
         }
     }
 }
