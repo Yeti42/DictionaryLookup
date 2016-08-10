@@ -18,6 +18,18 @@ namespace DictionaryLookup.Controllers
         public ActionResult Index(string word, string prefix)
         {
             int numToReturn = 40;
+            int versionID = 2;
+
+            string sqlcmd = "SELECT top " + numToReturn.ToString() + "p2.Word, p1.Word, w1.Word, ngt.* FROM NGramEntries nge" +
+                            "JOIN NGramStrings ngs ON nge.NGramStringID = ngs.NGramStringID" +
+                            "JOIN Wordstrings w1 ON ngs.WordID = w1.WordStringID" +
+                            "JOIN WordStrings p1 ON ngs.Previous1WordID = p1.WordStringID" +
+                            "JOIN WordStrings p2 ON ngs.Previous2WordID = p2.WordStringID" +
+                            "JOIN NGramTags ngt ON ngt.NGramTagsID = nge.NGramTagsID" +
+                            "ORDER BY ngt.TextPredictionCost, w1.Word, p1.Word, p2.Word" +
+                            "WHERE nge.VersionedDictionaryID = " + versionID.ToString();
+
+
             /*
             if (!String.IsNullOrEmpty(word))
                 word = word.Trim();
@@ -50,7 +62,7 @@ namespace DictionaryLookup.Controllers
                 return View(db.DictionaryWords.SqlQuery(sqlcmd, prefix).ToList());
             }
             */
-            return View(db.WordStrings.SqlQuery("SELECT top " + numToReturn.ToString() + " FROM WordStrings ORDER BY WordString").ToList());
+            return View(db.NGramEntries.SqlQuery(sqlcmd).ToList());
 
             //return View(words);
 

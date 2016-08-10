@@ -14,7 +14,10 @@ namespace GenerateTablesFromDictionary
         private static bool overwriteDBFiles = false;
         private static string bcpProgram = "C:\\Program Files (x86)\\Microsoft SQL Server\\Client SDK\\ODBC\\130\\Tools\\Binn\\bcp.exe";
         private static string opdir = "C:\\temp\\";
-        
+        private static string serverName = "osgdictionaries.database.windows.net";
+        private static string databaseName = "Dictionaries";
+
+
         public void ParseTestTrieFile(string filename)
         {
             GetCurrentWordStrings();
@@ -89,8 +92,9 @@ namespace GenerateTablesFromDictionary
                 {
                     args.Append(tableName);
                 }
-                args.Append(download ? " queryout " : " in ");
-                args.AppendFormat("{0} -Sosgdictionaries.database.windows.net -Utpg -c -dDictionaries -P \"{1}\"", filename, pwd);
+                args.AppendFormat(" {0} {1}", download ? " queryout " : " in ", filename); // Local file
+                args.AppendFormat(" -S{0} -c -d{1}", serverName, databaseName);            // Database connection
+                args.AppendFormat(" -Utpg -P \"{0}\"", pwd);                               // Credentials
                 Process p = Process.Start(bcpProgram, args.ToString());
                 p.WaitForExit();
             }
