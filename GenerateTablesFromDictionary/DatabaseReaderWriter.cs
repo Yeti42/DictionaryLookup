@@ -14,9 +14,24 @@ namespace GenerateTablesFromDictionary
         private static bool overwriteDBFiles = false;
         private static string bcpProgram = "C:\\Program Files (x86)\\Microsoft SQL Server\\Client SDK\\ODBC\\130\\Tools\\Binn\\bcp.exe";
         private static string opdir = "C:\\temp\\";
-        private static string serverName = "osgdictionaries.database.windows.net";
-        private static string databaseName = "Dictionaries";
+        private string serverName = @"osgdictionaries.database.windows.net";
+        private string databaseName = @"Dictionaries";
+        private bool useRemoteDB = true;
 
+        public DatabaseReaderWriter(bool remote = true)
+        {
+            useRemoteDB = remote;
+            if (useRemoteDB)
+            {
+                serverName = @"osgdictionaries.database.windows.net";
+                databaseName = @"Dictionaries";
+            }
+            else
+            {
+                serverName = @"(localdb)\MSSQLLocalDB";
+                databaseName = @"DictionaryLookupContext-20160713172838";
+            }
+        }
 
         public void ParseTestTrieFile(string filename)
         {
@@ -72,7 +87,7 @@ namespace GenerateTablesFromDictionary
             if (overwriteDBFiles || (download && !File.Exists(filename)) || (!download && File.Exists(filename)))
             {
                 StringBuilder args = new StringBuilder();
-                if (pwd.Length == 0)
+                if (useRemoteDB && (pwd.Length == 0))
                 {
                     Console.Write("Database Password: ");
                     pwd = Console.ReadLine();
@@ -93,8 +108,15 @@ namespace GenerateTablesFromDictionary
                     args.Append(tableName);
                 }
                 args.AppendFormat(" {0} {1}", download ? " queryout " : " in ", filename); // Local file
-                args.AppendFormat(" -S{0} -c -d{1}", serverName, databaseName);            // Database connection
-                args.AppendFormat(" -Utpg -P \"{0}\"", pwd);                               // Credentials
+                args.AppendFormat(" -S{0} -c -d{1}", serverName, databaseName);  // Database connection
+                if (useRemoteDB)
+                {
+                    args.AppendFormat(" -Utpg -P \"{0}\"", pwd);  // Credentials
+                }
+                else
+                {
+                    args.Append("-T");
+                }
                 Process p = Process.Start(bcpProgram, args.ToString());
                 p.WaitForExit();
             }

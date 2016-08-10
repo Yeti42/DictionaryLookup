@@ -54,7 +54,7 @@ namespace GenerateTablesFromDictionary
                 return;
             }
 
-            DatabaseReaderWriter dbrw = new DatabaseReaderWriter();
+            DatabaseReaderWriter dbrw = new DatabaseReaderWriter(false);
             dbrw.SetVersionDictionaryID(verID, verName, languageName);
             dbrw.ParseTestTrieFile(filename);
             if (upload) dbrw.UploadNewTableEntries();
