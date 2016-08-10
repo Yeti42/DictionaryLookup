@@ -17,6 +17,7 @@ namespace GenerateTablesFromDictionary
             string filename = "";
             string verName = "";
             string languageName = "en-US";
+            bool upload = false;
 
 
             for (int i = 0; i < args.Length; i++)
@@ -37,6 +38,9 @@ namespace GenerateTablesFromDictionary
                         case 'n':
                             verName = args[++i];
                             break;
+                        case 'u':
+                            upload = true;
+                            break;
                     }
                 }
                 else
@@ -51,7 +55,9 @@ namespace GenerateTablesFromDictionary
             }
 
             DatabaseReaderWriter dbrw = new DatabaseReaderWriter();
-            dbrw.ParseTestTrieFile(args[0], verID, verName, languageName);
+            dbrw.SetVersionDictionaryID(verID, verName, languageName);
+            dbrw.ParseTestTrieFile(filename);
+            if (upload) dbrw.UploadNewTableEntries();
         }
     }
 }

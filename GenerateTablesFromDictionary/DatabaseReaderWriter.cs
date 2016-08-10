@@ -15,10 +15,8 @@ namespace GenerateTablesFromDictionary
         private static string bcpProgram = "C:\\Program Files (x86)\\Microsoft SQL Server\\Client SDK\\ODBC\\130\\Tools\\Binn\\bcp.exe";
         private static string opdir = "C:\\temp\\";
         
-
-        public void ParseTestTrieFile(string filename, Int32 versionID, string verName, string languageName)
+        public void ParseTestTrieFile(string filename)
         {
-            SetNextVersionDictionaryID(versionID, verName, languageName);
             GetCurrentWordStrings();
             GetCurrentNGramTags();
             GetCurrentNGrams();
@@ -40,13 +38,35 @@ namespace GenerateTablesFromDictionary
             SetNewWordStrings(ref newWordStrings);
             SetNewNGramTags(ref newNGramTags);
             SetNewNGrams(ref newNGrams);
-            SetNewNGramEntries(filename, versionID);
+            SetNewNGramEntries(filename);
         }
 
-        private string RunBCP(string tableName, string query = "")
+        public void UploadNewTableEntries()
         {
-            string filename = String.Concat(opdir, tableName, ".txt");
-            if (overwriteDBFiles || !File.Exists(filename))
+            Upload("VersionedDictionaries");
+            Upload("WordStrings");
+            Upload("NGramTags");
+            Upload("NGramStrings");
+            Upload("NGramEntries");
+        }
+
+        private void Upload(string tableName)
+        {
+            string filename = String.Concat(opdir, tableName, ".New.txt");
+            if (File.Exists(filename))
+            {
+                FileInfo fi = new FileInfo(filename);
+                if (fi.Length > 0)
+                {
+                    RunBCP(tableName, "", false);
+                }
+            }
+        }
+
+        private string RunBCP(string tableName, string query = "", bool download=true)
+        {
+            string filename = String.Concat(opdir, tableName, download?".txt":".New.txt");
+            if (overwriteDBFiles || (download && !File.Exists(filename)) || (!download && File.Exists(filename)))
             {
                 StringBuilder args = new StringBuilder();
                 if (pwd.Length == 0)
@@ -54,15 +74,23 @@ namespace GenerateTablesFromDictionary
                     Console.Write("Database Password: ");
                     pwd = Console.ReadLine();
                 }
-                if (query.Length > 0)
+                if (download)
                 {
-                    args.AppendFormat("\"{0}\"", query);
+                    if (query.Length > 0)
+                    {
+                        args.AppendFormat("\"{0}\"", query);
+                    }
+                    else
+                    {
+                        args.AppendFormat("\"select * from {0}\"", tableName);
+                    }
                 }
                 else
                 {
-                    args.AppendFormat("\"select * from {0}\"", tableName);
+                    args.Append(tableName);
                 }
-                args.AppendFormat(" queryout {0} -Sosgdictionaries.database.windows.net -Utpg -c -dDictionaries -P \"{1}\"", filename, pwd);
+                args.Append(download ? " queryout " : " in ");
+                args.AppendFormat("{0} -Sosgdictionaries.database.windows.net -Utpg -c -dDictionaries -P \"{1}\"", filename, pwd);
                 Process p = Process.Start(bcpProgram, args.ToString());
                 p.WaitForExit();
             }
@@ -108,15 +136,21 @@ namespace GenerateTablesFromDictionary
         private void GetCurrentNGrams()
         {
             string tableName = "NGramStrings";
+
+            Dictionary<Int64, string> wordIndexLookup = new Dictionary<long, string>();
+            foreach (string w in existingWords.Keys) wordIndexLookup[existingWords[w]] = w;
             using (FileStream fs = File.OpenRead(RunBCP(tableName)))
             using (TextReader tr = new StreamReader(fs))
             {
+                StringBuilder nGramString = new StringBuilder();
                 while (tr.Peek() > -1)
                 {
                     string line = tr.ReadLine();
                     Int64 id = Int64.Parse(line.Remove(line.IndexOf('\t')));
-                    string nGramWordIndexes = line.Substring(line.IndexOf('\t') + 1);
-                    existingNGrams[nGramWordIndexes] = id;
+                    string[] idxs = line.Remove(line.LastIndexOf('\t')).Substring(line.IndexOf('\t') + 1).Split('\t');
+                    nGramString.Clear();
+                    nGramString.AppendFormat("{0} {1} {2}", wordIndexLookup[Int32.Parse(idxs[2])], wordIndexLookup[Int32.Parse(idxs[1])], wordIndexLookup[Int32.Parse(idxs[0])]);
+                    existingNGrams[nGramString.ToString().TrimStart(' ')] = id;
                     maxNGramsID = Math.Max(maxNGramsID, id);
                 }
             }
@@ -197,7 +231,7 @@ namespace GenerateTablesFromDictionary
             }
         }
 
-        private void SetNewNGramEntries(string filename, Int32 versionID)
+        private void SetNewNGramEntries(string filename)
         {
             string tableName = "NGramEntries";
             using (FileStream fs = File.OpenRead(RunBCP(tableName, "select top 1 NGramEntryID from NGramEntries order by NGramEntryID desc")))
@@ -221,7 +255,7 @@ namespace GenerateTablesFromDictionary
             }
         }
 
-        private void SetNextVersionDictionaryID(int verID, string verName, string languageName)
+        public void SetVersionDictionaryID(int verID, string verName, string languageName)
         {
             string tableName = "VersionedDictionaries";
             if (verID == 0)
@@ -237,8 +271,8 @@ namespace GenerateTablesFromDictionary
                     if(verName.Length == 0)
                     {
                         verName = string.Concat("Unnamed Dictionary ", DateTime.Now.ToString());
-                        tw.WriteLine("{0}\t{1}\t{2}", versionID.ToString(), GetLanguageID(languageName).ToString(), verName);
                     }
+                    tw.WriteLine("{0}\t{1}\t{2}", versionID.ToString(), GetLanguageID(languageName).ToString(), verName);
                 }
             }
             else
