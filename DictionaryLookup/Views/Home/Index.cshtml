@@ -1,4 +1,4 @@
-﻿@model IEnumerable<DictionaryLookup.Models.DictionaryWord>
+﻿@model IEnumerable<DictionaryLookup.Models.NGramViewModel>
 
 @{
     ViewBag.Title = "Dictionary Search";
@@ -19,7 +19,7 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Word)
+            @Html.DisplayNameFor(model => model.NGramWordString)
         </th>
         <th>
             TP cost
@@ -36,24 +36,24 @@
     {
         <tr>
             <td>
-                @Html.ActionLink(item.Word, "Details", new { id = item.DictionaryWordID })
+                @Html.ActionLink(item.NGramWordString, "Details", new { id = item.DictionaryWordID })
             </td>
             <td>
                 @{
-                    double p = (item.TextPredictionCost == 255) ?
-                            Math.Pow(10.0, -10.0) : Math.Pow(10.0, -8.0 * ((double)(item.TextPredictionCost) / 254.0));
+                    double p = (item.Tags.TextPredictionCost == 255) ?
+                            Math.Pow(10.0, -10.0) : Math.Pow(10.0, -8.0 * ((double)(item.Tags.TextPredictionCost) / 254.0));
                     string v = p.ToString("e3");
                 }
-                @Html.DisplayFor(modelItem => item.TextPredictionCost)
+                @Html.DisplayFor(modelItem => item.Tags.TextPredictionCost)
                 @(" (" + v + ")")
             </td>
             <td>
-                @(item.TextPredictionBadWord?"Yes":"")
+                @(item.Tags.TextPredictionBadWord?"Yes":"")
             </td>
             <td>
                 @Html.ActionLink("Misspelling", "ReportError", new { wordid = item.DictionaryWordID, errorid = 1 }) |
                 @Html.ActionLink("Invalid", "ReportError", new { wordid = item.DictionaryWordID, errorid = 2 }) |
-                @(item.TextPredictionBadWord ? @Html.ActionLink("Not Offensive", "ReportError", new { wordid = item.DictionaryWordID, errorid = 3 }) : @Html.ActionLink("Offensive", "ReportError", new { wordid = item.DictionaryWordID, errorid = 2 }))
+                @(item.Tags.TextPredictionBadWord ? @Html.ActionLink("Not Offensive", "ReportError", new { wordid = item.DictionaryWordID, errorid = 3 }) : @Html.ActionLink("Offensive", "ReportError", new { wordid = item.DictionaryWordID, errorid = 2 }))
             </td>
         </tr>
     }

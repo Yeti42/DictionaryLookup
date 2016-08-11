@@ -18,23 +18,36 @@ namespace DictionaryLookup.Controllers
         public ActionResult Index(string word, string prefix)
         {
             int numToReturn = 40;
-            int versionID = 2;
+            int versionID = 1;
+            string previous1 = (prefix == null) ? "" : prefix.Trim();
+            string previous2 = "";
 
-            string sqlcmd = "SELECT top " + numToReturn.ToString() + "p2.Word, p1.Word, w1.Word, ngt.* FROM NGramEntries nge" +
-                            "JOIN NGramStrings ngs ON nge.NGramStringID = ngs.NGramStringID" +
-                            "JOIN Wordstrings w1 ON ngs.WordID = w1.WordStringID" +
-                            "JOIN WordStrings p1 ON ngs.Previous1WordID = p1.WordStringID" +
-                            "JOIN WordStrings p2 ON ngs.Previous2WordID = p2.WordStringID" +
-                            "JOIN NGramTags ngt ON ngt.NGramTagsID = nge.NGramTagsID" +
-                            "ORDER BY ngt.TextPredictionCost, w1.Word, p1.Word, p2.Word" +
-                            "WHERE nge.VersionedDictionaryID = " + versionID.ToString();
+            if (!String.IsNullOrEmpty(word))
+                word = word.Trim();
+            if (!string.IsNullOrEmpty(previous1) && prefix.Contains(" "))
+            {
+                previous2 = previous1.Remove(previous1.IndexOf(' '));
+                previous1 = previous1.Substring(previous1.IndexOf(' ') + 1);
+            }
+
+            var report = (from nge in db.NGramEntries
+                         join ngs in db.NGramStrings on nge.NGramStringID equals ngs.NGramStringID
+                         join cw1 in db.WordStrings on ngs.WordID equals cw1.WordStringID
+                         join pw1 in db.WordStrings on ngs.Previous1WordID equals pw1.WordStringID
+                         join pw2 in db.WordStrings on ngs.Previous2WordID equals pw2.WordStringID
+                         join ngt in db.NGramTags on nge.NGramTagsID equals ngt.NGramTagsID
+                         where nge.VersionedDictionaryID == versionID
+                         orderby ngs.NGram, ngt.TextPredictionCost, cw1.Word, pw1.Word, pw2.Word
+                         select  new NGramViewModel
+                         {
+                             NGramWordString = String.Concat(cw1.Word, " ", pw1.Word, " ", pw2.Word),
+                             Tags = ngt,
+                             DictionaryWordID = cw1.WordStringID
+                         }).Take(numToReturn);
+
 
 
             /*
-            if (!String.IsNullOrEmpty(word))
-                word = word.Trim();
-            if (!string.IsNullOrEmpty(prefix))
-                prefix = prefix.Trim();
             if (!String.IsNullOrEmpty(word))
             {
                 if (!string.IsNullOrEmpty(prefix))
@@ -62,7 +75,10 @@ namespace DictionaryLookup.Controllers
                 return View(db.DictionaryWords.SqlQuery(sqlcmd, prefix).ToList());
             }
             */
-            return View(db.NGramEntries.SqlQuery(sqlcmd).ToList());
+            //var dbreport = db.NGramEntries.SqlQuery(sqlcmd);
+            //var dbreport2 = db.NGramEntries.SqlQuery(sqlcmd).ToList();
+
+            return View(report.ToList());
 
             //return View(words);
 

@@ -108,14 +108,14 @@ namespace GenerateTablesFromDictionary
                     args.Append(tableName);
                 }
                 args.AppendFormat(" {0} {1}", download ? " queryout " : " in ", filename); // Local file
-                args.AppendFormat(" -S{0} -c -d{1}", serverName, databaseName);  // Database connection
+                args.AppendFormat(" -S{0} -w -d{1}", serverName, databaseName);  // Database connection
                 if (useRemoteDB)
                 {
                     args.AppendFormat(" -Utpg -P \"{0}\"", pwd);  // Credentials
                 }
                 else
                 {
-                    args.Append("-T");
+                    args.Append(" -T");
                 }
                 Process p = Process.Start(bcpProgram, args.ToString());
                 p.WaitForExit();
@@ -186,8 +186,17 @@ namespace GenerateTablesFromDictionary
         {
             string tableName = "WordStrings";
             using (FileStream fs = File.Create(String.Concat(opdir, tableName, ".New.txt")))
-            using (TextWriter tw = new StreamWriter(fs))
+            using (TextWriter tw = new StreamWriter(fs, Encoding.Unicode))
             {
+                // Ensure that the "" string is #1
+                if (!existingWords.ContainsKey("") )
+                {
+                    if(maxWordStringsID != 0) throw(new Exception("Existing words does not contain empty string"));
+                    tw.WriteLine("1\t");
+                    newWordStrings.Remove("");
+                    maxWordStringsID = 1;
+                    existingWords[""] = 1;
+                }
                 foreach (string k in newWordStrings)
                 {
                     maxWordStringsID++;
@@ -201,7 +210,7 @@ namespace GenerateTablesFromDictionary
         {
             string tableName = "NGramTags";
             using (FileStream fs = File.Create(String.Concat(opdir, tableName, ".New.txt")))
-            using (TextWriter tw = new StreamWriter(fs))
+            using (TextWriter tw = new StreamWriter(fs, Encoding.Unicode))
             {
                 NGramTags ngt = new NGramTags();
                 foreach (Int64 k in newNGramTags)
@@ -225,7 +234,7 @@ namespace GenerateTablesFromDictionary
         {
             string tableName = "NGramStrings";
             using (FileStream fs = File.Create(String.Concat(opdir, tableName, ".New.txt")))
-            using (TextWriter tw = new StreamWriter(fs))
+            using (TextWriter tw = new StreamWriter(fs, Encoding.Unicode))
             {
                 foreach (string k in newNGrams)
                 {
@@ -251,7 +260,7 @@ namespace GenerateTablesFromDictionary
                         }
                         wordCount = 3;
                     }
-
+                    
                     tw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", maxNGramsID.ToString(), existingWords[w[0]], existingWords[w[1]], existingWords[w[2]], words.Count());
                 }
             }
@@ -263,20 +272,19 @@ namespace GenerateTablesFromDictionary
             using (FileStream fs = File.OpenRead(RunBCP(tableName, "select top 1 NGramEntryID from NGramEntries order by NGramEntryID desc")))
             using (TextReader tr = new StreamReader(fs))
             {
-                maxNGramsEntriesID = Int32.Parse(tr.ReadLine());
+                maxNGramsEntriesID = (tr.Peek() > -1) ? Int32.Parse(tr.ReadLine()) : 0;
             }
 
             using (TestTrieReader ttr = new TestTrieReader(filename))
             using (FileStream fs = File.Create(String.Concat(opdir, tableName, ".New.txt")))
-            using (TextWriter tw = new StreamWriter(fs))
+            using (TextWriter tw = new StreamWriter(fs, Encoding.Unicode))
             {
-                Int64 ngeID = 0;
                 while (ttr.Next())
                 {
-                    ngeID++;
+                    maxNGramsEntriesID++;
                     Int64 ngid = existingNGrams[ttr.nGramString];
                     Int64 tgid = existingTags[ttr.nGramTags.GetHash()];
-                    tw.WriteLine("{0}\t{1}\t{2}\t{3}", ngeID.ToString(), ngid.ToString(), tgid.ToString(), versionID);
+                    tw.WriteLine("{0}\t{1}\t{2}\t{3}", maxNGramsEntriesID.ToString(), ngid.ToString(), tgid.ToString(), versionID);
                 }
             }
         }
@@ -292,7 +300,7 @@ namespace GenerateTablesFromDictionary
                     versionID = Int32.Parse(tr.ReadLine()) + 1;
                 }
                 using (FileStream fs = File.Create(String.Concat(opdir, tableName, ".New.txt")))
-                using (TextWriter tw = new StreamWriter(fs))
+                using (TextWriter tw = new StreamWriter(fs, Encoding.Unicode))
                 {
                     if(verName.Length == 0)
                     {
@@ -313,7 +321,7 @@ namespace GenerateTablesFromDictionary
             using (FileStream fs = File.OpenRead(RunBCP(tableName, String.Concat("select top 1 LanguagesID from Languages where BCP47 = '", languageName, "'"))))
             using (TextReader tr = new StreamReader(fs))
             {
-                return Int32.Parse(tr.ReadLine());
+                return (tr.Peek() > -1) ? Int32.Parse(tr.ReadLine()) : 0;
             }
         }
 
