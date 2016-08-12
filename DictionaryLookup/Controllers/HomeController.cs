@@ -15,35 +15,148 @@ namespace DictionaryLookup.Controllers
         private DictionaryLookupContext db = new DictionaryLookupContext();
 
         // GET: Home0
-        public ActionResult Index(string word, string prefix)
+        public ActionResult Index(string word, string prefix, string version)
         {
-            int numToReturn = 40;
-            int versionID = 1;
-            string previous1 = (prefix == null) ? "" : prefix.Trim();
+            int numToReturn = 100;
+            Int32 versionID = string.IsNullOrEmpty(version)?1:Int32.Parse(version);
+            string previous1 = "";
             string previous2 = "";
 
             if (!String.IsNullOrEmpty(word))
                 word = word.Trim();
-            if (!string.IsNullOrEmpty(previous1) && prefix.Contains(" "))
+            if (!String.IsNullOrEmpty(prefix))
+                prefix = prefix.Trim();
+            if (!string.IsNullOrEmpty(prefix) && prefix.Contains(" "))
             {
-                previous2 = previous1.Remove(previous1.IndexOf(' '));
-                previous1 = previous1.Substring(previous1.IndexOf(' ') + 1);
+                previous1 = prefix.Substring(prefix.IndexOf(' ') + 1);
+                previous2 = prefix.Remove(prefix.IndexOf(' '));
             }
 
-            var report = (from nge in db.NGramEntries
-                         join ngs in db.NGramStrings on nge.NGramStringID equals ngs.NGramStringID
-                         join cw1 in db.WordStrings on ngs.WordID equals cw1.WordStringID
-                         join pw1 in db.WordStrings on ngs.Previous1WordID equals pw1.WordStringID
-                         join pw2 in db.WordStrings on ngs.Previous2WordID equals pw2.WordStringID
-                         join ngt in db.NGramTags on nge.NGramTagsID equals ngt.NGramTagsID
-                         where nge.VersionedDictionaryID == versionID
-                         orderby ngs.NGram, ngt.TextPredictionCost, cw1.Word, pw1.Word, pw2.Word
-                         select  new NGramViewModel
-                         {
-                             NGramWordString = String.Concat(cw1.Word, " ", pw1.Word, " ", pw2.Word),
-                             Tags = ngt,
-                             DictionaryWordID = cw1.WordStringID
-                         }).Take(numToReturn);
+            if (!String.IsNullOrEmpty(word))
+            {
+                if (!String.IsNullOrEmpty(previous2))
+                {
+                    var report = (from nge in db.NGramEntries
+                                  join ngs in db.NGramStrings on nge.NGramStringID equals ngs.NGramStringID
+                                  join cw1 in db.WordStrings on ngs.WordID equals cw1.WordStringID
+                                  join pw1 in db.WordStrings on ngs.Previous1WordID equals pw1.WordStringID
+                                  join pw2 in db.WordStrings on ngs.Previous2WordID equals pw2.WordStringID
+                                  join ngt in db.NGramTags on nge.NGramTagsID equals ngt.NGramTagsID
+                                  where nge.VersionedDictionaryID == versionID
+                                  where cw1.Word == word
+                                  where pw1.Word == previous1
+                                  where pw2.Word == previous2
+                                  orderby ngs.NGram, ngt.TextPredictionCost, cw1.Word, pw1.Word, pw2.Word
+                                  select new NGramViewModel
+                                  {
+                                      NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
+                                      Tags = ngt,
+                                      DictionaryWordID = cw1.WordStringID
+                                  }).Take(numToReturn);
+                    return View(report.ToList());
+                }
+                else if (!String.IsNullOrEmpty(previous1))
+                {
+                    var report = (from nge in db.NGramEntries
+                                  join ngs in db.NGramStrings on nge.NGramStringID equals ngs.NGramStringID
+                                  join cw1 in db.WordStrings on ngs.WordID equals cw1.WordStringID
+                                  join pw1 in db.WordStrings on ngs.Previous1WordID equals pw1.WordStringID
+                                  join pw2 in db.WordStrings on ngs.Previous2WordID equals pw2.WordStringID
+                                  join ngt in db.NGramTags on nge.NGramTagsID equals ngt.NGramTagsID
+                                  where nge.VersionedDictionaryID == versionID
+                                  where cw1.Word == word
+                                  where pw1.Word == previous1
+                                  orderby ngs.NGram, ngt.TextPredictionCost, cw1.Word, pw1.Word, pw2.Word
+                                  select new NGramViewModel
+                                  {
+                                      NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
+                                      Tags = ngt,
+                                      DictionaryWordID = cw1.WordStringID
+                                  }).Take(numToReturn);
+                    return View(report.ToList());
+
+                }
+                else
+                {
+                    var report = (from nge in db.NGramEntries
+                                  join ngs in db.NGramStrings on nge.NGramStringID equals ngs.NGramStringID
+                                  join cw1 in db.WordStrings on ngs.WordID equals cw1.WordStringID
+                                  join pw1 in db.WordStrings on ngs.Previous1WordID equals pw1.WordStringID
+                                  join pw2 in db.WordStrings on ngs.Previous2WordID equals pw2.WordStringID
+                                  join ngt in db.NGramTags on nge.NGramTagsID equals ngt.NGramTagsID
+                                  where nge.VersionedDictionaryID == versionID
+                                  where cw1.Word == word
+                                  orderby ngs.NGram, ngt.TextPredictionCost, cw1.Word, pw1.Word, pw2.Word
+                                  select new NGramViewModel
+                                  {
+                                      NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
+                                      Tags = ngt,
+                                      DictionaryWordID = cw1.WordStringID
+                                  }).Take(numToReturn);
+                    return View(report.ToList());
+
+                }
+            }
+            else if (!String.IsNullOrEmpty(previous2))
+            {
+                var report = (from nge in db.NGramEntries
+                              join ngs in db.NGramStrings on nge.NGramStringID equals ngs.NGramStringID
+                              join cw1 in db.WordStrings on ngs.WordID equals cw1.WordStringID
+                              join pw1 in db.WordStrings on ngs.Previous1WordID equals pw1.WordStringID
+                              join pw2 in db.WordStrings on ngs.Previous2WordID equals pw2.WordStringID
+                              join ngt in db.NGramTags on nge.NGramTagsID equals ngt.NGramTagsID
+                              where nge.VersionedDictionaryID == versionID
+                              where pw1.Word == previous1
+                              where pw2.Word == previous2
+                              orderby ngs.NGram, ngt.TextPredictionCost, cw1.Word, pw1.Word, pw2.Word
+                              select new NGramViewModel
+                              {
+                                  NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
+                                  Tags = ngt,
+                                  DictionaryWordID = cw1.WordStringID
+                              }).Take(numToReturn);
+                return View(report.ToList());
+
+            }
+            else if (!String.IsNullOrEmpty(previous1))
+            {
+                var report = (from nge in db.NGramEntries
+                              join ngs in db.NGramStrings on nge.NGramStringID equals ngs.NGramStringID
+                              join cw1 in db.WordStrings on ngs.WordID equals cw1.WordStringID
+                              join pw1 in db.WordStrings on ngs.Previous1WordID equals pw1.WordStringID
+                              join pw2 in db.WordStrings on ngs.Previous2WordID equals pw2.WordStringID
+                              join ngt in db.NGramTags on nge.NGramTagsID equals ngt.NGramTagsID
+                              where nge.VersionedDictionaryID == versionID
+                              where pw1.Word == previous1
+                              orderby ngs.NGram, ngt.TextPredictionCost, cw1.Word, pw1.Word, pw2.Word
+                              select new NGramViewModel
+                              {
+                                  NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
+                                  Tags = ngt,
+                                  DictionaryWordID = cw1.WordStringID
+                              }).Take(numToReturn);
+                return View(report.ToList());
+
+            }
+            else
+            {
+                var report = (from nge in db.NGramEntries
+                              join ngs in db.NGramStrings on nge.NGramStringID equals ngs.NGramStringID
+                              join cw1 in db.WordStrings on ngs.WordID equals cw1.WordStringID
+                              join pw1 in db.WordStrings on ngs.Previous1WordID equals pw1.WordStringID
+                              join pw2 in db.WordStrings on ngs.Previous2WordID equals pw2.WordStringID
+                              join ngt in db.NGramTags on nge.NGramTagsID equals ngt.NGramTagsID
+                              where nge.VersionedDictionaryID == versionID
+                              orderby ngs.NGram, ngt.TextPredictionCost, cw1.Word, pw1.Word, pw2.Word
+                              select new NGramViewModel
+                              {
+                                  NGramWordString = pw2.Word + " " + pw1.Word + " " + cw1.Word,
+                                  Tags = ngt,
+                                  DictionaryWordID = cw1.WordStringID
+                              }).Take(numToReturn);
+                return View(report.ToList());
+
+            }
 
 
 
@@ -78,7 +191,7 @@ namespace DictionaryLookup.Controllers
             //var dbreport = db.NGramEntries.SqlQuery(sqlcmd);
             //var dbreport2 = db.NGramEntries.SqlQuery(sqlcmd).ToList();
 
-            return View(report.ToList());
+            //return View(report.ToList());
 
             //return View(words);
 
