@@ -9,6 +9,6 @@ namespace DictionaryLookup.Models
     {
         public string NGramWordString { get; set; }
         public NGramTags Tags { get; set; }
-        public Int64 DictionaryWordID { get; set; }
+        public Int64 DictionaryNGramID { get; set; }
     }
 }

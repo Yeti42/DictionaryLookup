@@ -9,13 +9,7 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.WordID)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.LanguageID)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.DictionaryVersion)
+            @Html.DisplayNameFor(model => model.NGramEntryID)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.ReportDateTime)
@@ -35,13 +29,7 @@
 @foreach (var item in Model) {
     <tr>
         <td>
-            @Html.DisplayFor(modelItem => item.WordID)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.LanguageID)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.DictionaryVersion)
+            @Html.DisplayFor(modelItem => item.NGramEntryID)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.ReportDateTime)

@@ -51,7 +51,7 @@ namespace DictionaryLookup.Controllers
                                   {
                                       NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
                                       Tags = ngt,
-                                      DictionaryWordID = cw1.WordStringID
+                                      DictionaryNGramID = nge.NGramEntryID
                                   }).Take(numToReturn);
                     return View(report.ToList());
                 }
@@ -71,7 +71,7 @@ namespace DictionaryLookup.Controllers
                                   {
                                       NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
                                       Tags = ngt,
-                                      DictionaryWordID = cw1.WordStringID
+                                      DictionaryNGramID = nge.NGramEntryID
                                   }).Take(numToReturn);
                     return View(report.ToList());
 
@@ -91,7 +91,7 @@ namespace DictionaryLookup.Controllers
                                   {
                                       NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
                                       Tags = ngt,
-                                      DictionaryWordID = cw1.WordStringID
+                                      DictionaryNGramID = nge.NGramEntryID
                                   }).Take(numToReturn);
                     return View(report.ToList());
 
@@ -113,7 +113,7 @@ namespace DictionaryLookup.Controllers
                               {
                                   NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
                                   Tags = ngt,
-                                  DictionaryWordID = cw1.WordStringID
+                                  DictionaryNGramID = nge.NGramEntryID
                               }).Take(numToReturn);
                 return View(report.ToList());
 
@@ -133,7 +133,7 @@ namespace DictionaryLookup.Controllers
                               {
                                   NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
                                   Tags = ngt,
-                                  DictionaryWordID = cw1.WordStringID
+                                  DictionaryNGramID = nge.NGramEntryID
                               }).Take(numToReturn);
                 return View(report.ToList());
 
@@ -152,7 +152,7 @@ namespace DictionaryLookup.Controllers
                               {
                                   NGramWordString = pw2.Word + " " + pw1.Word + " " + cw1.Word,
                                   Tags = ngt,
-                                  DictionaryWordID = cw1.WordStringID
+                                  DictionaryNGramID = nge.NGramEntryID
                               }).Take(numToReturn);
                 return View(report.ToList());
 
@@ -215,9 +215,9 @@ namespace DictionaryLookup.Controllers
         }
         */
                         
-        public ActionResult ReportError(Int64 wordid, Int16 errorid)
+        public ActionResult ReportError(Int64 ngramid, Int16 errorid)
         {
-            DictionaryErrorReport dr = new DictionaryErrorReport(wordid, errorid, 1, "");
+            DictionaryErrorReport dr = new DictionaryErrorReport(ngramid, errorid, 1, "");
             db.DictionaryErrorReports.Add(dr);
             db.SaveChanges();
             return RedirectToAction("Details", "DictionaryErrorReports", new { id = dr.DictionaryErrorReportId });

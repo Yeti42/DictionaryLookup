@@ -19,9 +19,7 @@ namespace DictionaryLookup.Models
         private void Set(Int64 id, Int16 err, Int32 user, string note)
         {
             DictionaryErrorReportId = 0;
-            NGramStringID = id;
-            NGramTagID = 1; // Only en-US for now.
-            VersionedDictionaryID = 1; // Versioning placeholder.
+            NGramEntryID = id;
             ReportDateTime = DateTime.Now;
             ErrorTypeID = err;
             UserID = user;
@@ -29,9 +27,7 @@ namespace DictionaryLookup.Models
         }
 
         public Int32 DictionaryErrorReportId { get; set; }
-        public Int32 VersionedDictionaryID { get; set; }
-        public Int64 NGramStringID { get; set; }
-        public Int64 NGramTagID { get; set; } 
+        public Int64 NGramEntryID { get; set; }
         public DateTime ReportDateTime { get; set; }
         public int ErrorTypeID { get; set; } // key to the errortype table
         public Int32 UserID { get; set; } // key to the user table

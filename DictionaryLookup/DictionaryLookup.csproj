@@ -201,6 +201,10 @@
     <Compile Include="Migrations\201608082325059_Initial1.Designer.cs">
       <DependentUpon>201608082325059_Initial1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201608122005198_Initial2.cs" />
+    <Compile Include="Migrations\201608122005198_Initial2.Designer.cs">
+      <DependentUpon>201608122005198_Initial2.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\DictionaryLookupContext.cs" />
@@ -282,8 +286,8 @@
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Home\Details.cshtml" />
-    <Content Include="Views\DictionaryReports\Details.cshtml" />
-    <Content Include="Views\DictionaryReports\Index.cshtml" />
+    <Content Include="Views\DictionaryErrorReports\Details.cshtml" />
+    <Content Include="Views\DictionaryErrorReports\Index.cshtml" />
     <Content Include="Views\VersionedDictionaries\Index.cshtml" />
     <Content Include="Views\NGramEntries\Create.cshtml" />
     <Content Include="Views\NGramEntries\Delete.cshtml" />
@@ -314,6 +318,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201608082325059_Initial1.resx">
       <DependentUpon>201608082325059_Initial1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608122005198_Initial2.resx">
+      <DependentUpon>201608122005198_Initial2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
