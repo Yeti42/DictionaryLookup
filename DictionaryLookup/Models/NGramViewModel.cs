@@ -8,7 +8,6 @@ namespace DictionaryLookup.Models
     public class NGramViewModel
     {
         public string NGramWordString { get; set; }
-
         public NGramTags Tags { get; set; }
         public Int64 DictionaryWordID { get; set; }
     }

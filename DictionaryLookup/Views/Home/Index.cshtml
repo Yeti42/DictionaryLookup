@@ -6,15 +6,65 @@
 
 <h2>Dictionary Search</h2>
 
-@using (Html.BeginForm())
-{
-    <p>
-        Word: @Html.TextBox("word") <br />
-        Prefix: @Html.TextBox("prefix") <br />
-        <input type="submit" value="Search" />
-    </p> 
+@{
+    List<SelectListItem> listLanguageItems = new List<SelectListItem>();
+    listLanguageItems.Add(new SelectListItem
+    {
+        Text = "English(United States)",
+        Value = "1"
+    });
+}
+@{
+    List<SelectListItem> listDictionaryItems = new List<SelectListItem>();
+    listDictionaryItems.Add(new SelectListItem
+    {
+        Text = "RS_Release",
+        Value = "1"
+    });
 }
 
+@using (Html.BeginForm())
+{
+    <table>
+        <tr>
+            <td>
+                Language:
+            </td>
+            <td>
+                @Html.DropDownList("yourDropName", listLanguageItems, new { @class = "form-control" })
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Dictionary:
+            </td>
+            <td>
+                @Html.DropDownList("yourDropName", listDictionaryItems, new { @class = "form-control" })
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Word:
+            </td>
+            <td>
+                @Html.TextBox("word")
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Prefix:
+            </td>
+            <td>
+                @Html.TextBox("prefix")
+            </td>
+            <td>
+                <input type="submit" value="Search" />
+            </td>
+        </tr>
+    </table>
+}
+
+<br />
 
 <table class="table">
     <tr>
