@@ -140,6 +140,9 @@ namespace DictionaryLookup.Controllers
             }
             else
             {
+                List<NGramViewModel> ngvm = new List<NGramViewModel>();
+                return View(ngvm);
+                /*
                 var report = (from nge in db.NGramEntries
                               join ngs in db.NGramStrings on nge.NGramStringID equals ngs.NGramStringID
                               join cw1 in db.WordStrings on ngs.WordID equals cw1.WordStringID
@@ -155,6 +158,7 @@ namespace DictionaryLookup.Controllers
                                   DictionaryNGramID = nge.NGramEntryID
                               }).Take(numToReturn);
                 return View(report.ToList());
+                */
 
             }
 

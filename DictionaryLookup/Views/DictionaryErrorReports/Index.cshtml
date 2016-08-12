@@ -1,4 +1,4 @@
-﻿@model IEnumerable<DictionaryLookup.Models.DictionaryErrorReport>
+﻿@model IEnumerable<DictionaryLookup.Models.ErrorReportViewModel>
 
 @{
     ViewBag.Title = "Error Reports";
@@ -9,19 +9,19 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.NGramEntryID)
+            @Html.DisplayNameFor(model => model.languageName)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ReportDateTime)
+            @Html.DisplayNameFor(model => model.nGramString)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ErrorTypeID)
+            @Html.DisplayNameFor(model => model.reportDateTime)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.UserID)
+            @Html.DisplayNameFor(model => model.errorName)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Notes)
+            @Html.DisplayNameFor(model => model.userName)
         </th>
         <th></th>
     </tr>
@@ -29,22 +29,22 @@
 @foreach (var item in Model) {
     <tr>
         <td>
-            @Html.DisplayFor(modelItem => item.NGramEntryID)
+            @Html.DisplayFor(modelItem => item.languageName)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.ReportDateTime)
+            @Html.DisplayFor(modelItem => item.nGramString)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.ErrorTypeID)
+            @Html.DisplayFor(modelItem => item.reportDateTime)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.UserID)
+            @Html.DisplayFor(modelItem => item.errorName)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Notes)
+            @Html.DisplayFor(modelItem => item.userName)
         </td>
         <td>
-            @Html.ActionLink("Details", "Details", new { id=item.DictionaryErrorReportId })
+            @Html.ActionLink("Details", "Details", new { id=item.dr })
         </td>
     </tr>
 }
