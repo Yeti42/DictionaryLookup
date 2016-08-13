@@ -26,10 +26,17 @@ namespace DictionaryLookup.Controllers
                 word = word.Trim();
             if (!String.IsNullOrEmpty(prefix))
                 prefix = prefix.Trim();
-            if (!string.IsNullOrEmpty(prefix) && prefix.Contains(" "))
+            if (!String.IsNullOrEmpty(prefix))
             {
-                previous1 = prefix.Substring(prefix.IndexOf(' ') + 1);
-                previous2 = prefix.Remove(prefix.IndexOf(' '));
+                if (prefix.Contains(" "))
+                {
+                    previous1 = prefix.Substring(prefix.IndexOf(' ') + 1);
+                    previous2 = prefix.Remove(prefix.IndexOf(' '));
+                }
+                else
+                {
+                    previous1 = prefix;
+                }
             }
 
             if (!String.IsNullOrEmpty(word))
@@ -142,6 +149,8 @@ namespace DictionaryLookup.Controllers
             {
                 List<NGramViewModel> ngvm = new List<NGramViewModel>();
                 return View(ngvm);
+
+                // Not performant enough to run this query.
                 /*
                 var report = (from nge in db.NGramEntries
                               join ngs in db.NGramStrings on nge.NGramStringID equals ngs.NGramStringID

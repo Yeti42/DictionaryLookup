@@ -103,7 +103,7 @@
             <td>
                 @Html.ActionLink("Misspelling", "ReportError", new { ngramid = item.DictionaryNGramID, errorid = 1 }) |
                 @Html.ActionLink("Invalid", "ReportError", new { ngramid = item.DictionaryNGramID, errorid = 2 }) |
-                @(item.Tags.TextPredictionBadWord ? @Html.ActionLink("Not Offensive", "ReportError", new { wordid = item.DictionaryNGramID, errorid = 3 }) : @Html.ActionLink("Offensive", "ReportError", new { wordid = item.DictionaryNGramID, errorid = 2 }))
+                @(item.Tags.TextPredictionBadWord ? @Html.ActionLink("Not Offensive", "ReportError", new { ngramid = item.DictionaryNGramID, errorid = 4 }) : @Html.ActionLink("Offensive", "ReportError", new { ngramid = item.DictionaryNGramID, errorid = 3 }))
             </td>
         </tr>
     }
