@@ -1,11 +1,11 @@
-﻿@model DictionaryLookup.Models.DictionaryWord
+﻿@model DictionaryLookup.Models.NGramViewModel
 
 @{
     ViewBag.Title = "Details";
 }
 
 <div>
-    <h2>@Html.DisplayFor(model => model.Word)</h2>
+    <h2>@Html.DisplayFor(model => model.NGramWordString)</h2>
     <hr />
     <dl class="dl-horizontal">
 
@@ -14,7 +14,7 @@
         </dt>
 
         <dd>
-            @(Model.Restricted ? "Yes" : "No")
+            @(Model.Tags.Restricted ? "Yes" : "No")
         </dd>
 
         <dt>
@@ -22,7 +22,7 @@
         </dt>
 
         <dd>
-            @(Model.TextPredictionBadWord ? "Yes" : "No")
+            @(Model.Tags.TextPredictionBadWord ? "Yes" : "No")
         </dd>
 
         <dt>
@@ -30,7 +30,7 @@
         </dt>
 
         <dd>
-            @{switch (Model.SpellerFrequency)
+            @{switch (Model.Tags.SpellerFrequency)
             {
                 case 0:
                     <text>Normal</text>
@@ -53,7 +53,7 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.TextPredictionCost)
+            @Html.DisplayFor(model => model.Tags.TextPredictionCost)
         </dd>
 
         <dt>
@@ -61,7 +61,7 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.TextPredictionBackOffCost)
+            @Html.DisplayFor(model => model.Tags.TextPredictionBackOffCost)
         </dd>
 
         <dt>
@@ -69,7 +69,7 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.HWRCost)
+            @Html.DisplayFor(model => model.Tags.HWRCost)
         </dd>
 
         <dt>
@@ -77,7 +77,7 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.HWRCalligraphyCost)
+            @Html.DisplayFor(model => model.Tags.HWRCalligraphyCost)
         </dd>
 
     </dl>

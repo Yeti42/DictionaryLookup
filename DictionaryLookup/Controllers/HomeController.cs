@@ -210,7 +210,6 @@ namespace DictionaryLookup.Controllers
 
         }
 
-        /*
         // GET: Home/Details/5
         public ActionResult Details(int? id)
         {
@@ -218,15 +217,24 @@ namespace DictionaryLookup.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            DictionaryWord dictionaryWord = db.DictionaryWords.Find(id);
-            if (dictionaryWord == null)
-            {
-                return HttpNotFound();
-            }
+            var report = (from nge in db.NGramEntries
+                          join ngs in db.NGramStrings on nge.NGramStringID equals ngs.NGramStringID
+                          join cw1 in db.WordStrings on ngs.WordID equals cw1.WordStringID
+                          join pw1 in db.WordStrings on ngs.Previous1WordID equals pw1.WordStringID
+                          join pw2 in db.WordStrings on ngs.Previous2WordID equals pw2.WordStringID
+                          join ngt in db.NGramTags on nge.NGramTagsID equals ngt.NGramTagsID
+                          where nge.NGramEntryID == id
+                          select new NGramViewModel
+                          {
+                              NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
+                              Tags = ngt,
+                              DictionaryNGramID = nge.NGramEntryID
+                          }).Take(1);
 
-            return View(dictionaryWord);
+            // NGramViewModel ngvm = report.First();
+
+            return View(report.First());
         }
-        */
                         
         public ActionResult ReportError(Int64 ngramid, Int16 errorid)
         {
