@@ -90,20 +90,20 @@
             </td>
             <td>
                 @{
-                    double p = (item.Tags.TextPredictionCost == 255) ?
-                            Math.Pow(10.0, -10.0) : Math.Pow(10.0, -8.0 * ((double)(item.Tags.TextPredictionCost) / 254.0));
+                    double p = (item.TextPredictionCost == 255) ?
+                            Math.Pow(10.0, -10.0) : Math.Pow(10.0, -8.0 * ((double)(item.TextPredictionCost) / 254.0));
                     string v = p.ToString("e3");
                 }
-                @Html.DisplayFor(modelItem => item.Tags.TextPredictionCost)
+                @Html.DisplayFor(modelItem => item.TextPredictionCost)
                 @(" (" + v + ")")
             </td>
             <td>
-                @(item.Tags.TextPredictionBadWord?"Yes":"")
+                @(item.TextPredictionBadWord?"Yes":"")
             </td>
             <td>
                 @Html.ActionLink("Misspelling", "ReportError", new { ngramid = item.DictionaryNGramID, errorid = 1 }) |
                 @Html.ActionLink("Invalid", "ReportError", new { ngramid = item.DictionaryNGramID, errorid = 2 }) |
-                @(item.Tags.TextPredictionBadWord ? @Html.ActionLink("Not Offensive", "ReportError", new { ngramid = item.DictionaryNGramID, errorid = 4 }) : @Html.ActionLink("Offensive", "ReportError", new { ngramid = item.DictionaryNGramID, errorid = 3 }))
+                @(item.TextPredictionBadWord ? @Html.ActionLink("Not Offensive", "ReportError", new { ngramid = item.DictionaryNGramID, errorid = 4 }) : @Html.ActionLink("Offensive", "ReportError", new { ngramid = item.DictionaryNGramID, errorid = 3 }))
             </td>
         </tr>
     }

@@ -57,7 +57,7 @@ namespace DictionaryLookup.Controllers
                                   select new NGramViewModel
                                   {
                                       NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
-                                      Tags = ngt,
+                                      //Tags = ngt,
                                       DictionaryNGramID = nge.NGramEntryID
                                   }).Take(numToReturn);
                     return View(report.ToList());
@@ -77,7 +77,7 @@ namespace DictionaryLookup.Controllers
                                   select new NGramViewModel
                                   {
                                       NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
-                                      Tags = ngt,
+                                      //Tags = ngt,
                                       DictionaryNGramID = nge.NGramEntryID
                                   }).Take(numToReturn);
                     return View(report.ToList());
@@ -97,7 +97,7 @@ namespace DictionaryLookup.Controllers
                                   select new NGramViewModel
                                   {
                                       NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
-                                      Tags = ngt,
+                                      //Tags = ngt,
                                       DictionaryNGramID = nge.NGramEntryID
                                   }).Take(numToReturn);
                     return View(report.ToList());
@@ -119,7 +119,7 @@ namespace DictionaryLookup.Controllers
                               select new NGramViewModel
                               {
                                   NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
-                                  Tags = ngt,
+                                  //Tags = ngt,
                                   DictionaryNGramID = nge.NGramEntryID
                               }).Take(numToReturn);
                 return View(report.ToList());
@@ -139,7 +139,7 @@ namespace DictionaryLookup.Controllers
                               select new NGramViewModel
                               {
                                   NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
-                                  Tags = ngt,
+                                  //Tags = ngt,
                                   DictionaryNGramID = nge.NGramEntryID
                               }).Take(numToReturn);
                 return View(report.ToList());
@@ -147,8 +147,33 @@ namespace DictionaryLookup.Controllers
             }
             else
             {
-                List<NGramViewModel> ngvm = new List<NGramViewModel>();
-                return View(ngvm);
+                //List<NGramViewModel> ngvm = new List<NGramViewModel>();
+                string sqlcmd = "SELECT top " + numToReturn.ToString() +
+                    " nge.NGramEntryID AS DictionaryNGramID" +
+                    ", (ISNULL(pw2.Word + ' ', '') + ISNULL(pw1.Word + ' ', '') + cw1.Word) AS NGramWordString" +
+                    ", ngt.Restricted AS Restricted" +
+                    ", ngt.SpellerFrequency AS SpellerFrequency" +
+                    ", ngt.TextPredictionBadWord AS TextPredictionBadWord" +
+                    ", ngt.TextPredictionCost AS TextPredictionCost" +
+                    ", ngt.TextPredictionBackOffCost AS TextPredictionBackOffCost" +
+                    ", ngt.HWRCost AS HWRCost" +
+                    ", ngt.HWRCalligraphyCost AS HWRCalligraphyCost" +
+                                " FROM NGramEntries nge" +
+                                " JOIN NGramStrings ngs ON nge.NGramStringID = ngs.NGramStringID" +
+                                " JOIN WordStrings cw1 ON ngs.WordID = cw1.WordStringID" +
+                                " JOIN WordStrings pw1 ON ngs.Previous1WordID = pw1.WordStringID" +
+                                " JOIN WordStrings pw2 ON ngs.Previous2WordID = pw2.WordStringID" +
+                                " JOIN NGramTags ngt ON nge.NGramTagsID = ngt.NGramTagsID" +
+                                " WHERE nge.VersionedDictionaryID = " + versionID.ToString() +
+                                " ORDER BY ngs.NGram, ngt.TextPredictionCost, cw1.Word, pw1.Word, pw2.Word";
+
+                //var vreport = db.NGramEntries.SqlQuery(sqlcmd);
+                //IEnumerable<NGramEntry> ereport = db.Database.SqlQuery<NGramEntry>(sqlcmd);
+                IEnumerable<NGramViewModel> report = db.Database.SqlQuery<NGramViewModel>(sqlcmd);
+                //List<NGramViewModel> report = db.Database.SqlQuery<NGramViewModel>(sqlcmd).ToList();
+
+                List<NGramViewModel> n = report.ToList();
+                return View(n);
 
                 // Not performant enough to run this query.
                 /*
@@ -227,7 +252,7 @@ namespace DictionaryLookup.Controllers
                           select new NGramViewModel
                           {
                               NGramWordString = String.Concat(pw2.Word, " ", pw1.Word, " ", cw1.Word),
-                              Tags = ngt,
+                              //Tags = ngt,
                               DictionaryNGramID = nge.NGramEntryID
                           }).Take(1);
 
