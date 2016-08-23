@@ -39,6 +39,11 @@ namespace DictionaryLookup.Controllers
                     previous1 = prefix;
                 }
             }
+            if(String.IsNullOrEmpty(word) && String.IsNullOrEmpty(previous1) && String.IsNullOrEmpty(previous2))
+            {
+                List<NGramViewModel> emptyreport = new List<NGramViewModel>();
+                return View(emptyreport);
+            }
 
             StringBuilder sqlcmd = new StringBuilder("SELECT top " + numToReturn.ToString() +
                 " nge.NGramEntryID AS DictionaryNGramID" +
@@ -70,6 +75,8 @@ namespace DictionaryLookup.Controllers
             {
                 sqlcmd.Append(" AND pw2.Word = '" + previous2 + "'");
             }
+
+            db.Database.CommandTimeout = 60;
 
             sqlcmd.Append(" ORDER BY ngs.NGram, ngt.TextPredictionCost, cw1.Word, pw1.Word, pw2.Word");
             //IEnumerable<NGramViewModel> report = db.Database.SqlQuery<NGramViewModel>(sqlcmd.ToString());

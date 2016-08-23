@@ -17,6 +17,7 @@ namespace DictionaryLookup.Migrations
             //  This method will be called after migrating to the latest version.
 
             // Languages
+            /*
             context.Languages.AddOrUpdate(
                 p => p.BCP47,
                 new Models.Languages { BCP47 = "en-US", FriendlyName = "English(United States)" },
@@ -47,6 +48,7 @@ namespace DictionaryLookup.Migrations
                 p => p.Word,
                 new Models.WordString { Word = "" }
             );
+            */
         }
     }
 }
